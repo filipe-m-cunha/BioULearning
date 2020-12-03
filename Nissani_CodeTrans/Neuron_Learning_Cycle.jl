@@ -26,7 +26,7 @@ c1, c2 -- Updated hp 2 sides mean estimates cumulative weighting factor
 t_N -- updated neuron current time
 =# 
 
-function NeuronLearningCycle(x, w, μ₁ᵉ, μ₂ᵉ, c1, c2, tₙ)
+function NeuronLearningCycle(x, w, θ, μ₁ᵉ, μ₂ᵉ, c1, c2, tₙ, ϕ, ϵ, α, α_sq, μᵉmode, μᵉpar, R_start, E_start, d)
     w_sqrt_norm = transpose(w).*w
     w_norm = norm(w)
     wx = transpose(w) .* x
@@ -44,7 +44,7 @@ function NeuronLearningCycle(x, w, μ₁ᵉ, μ₂ᵉ, c1, c2, tₙ)
              u = (sign(transpose(w)*x - θ)/w_norm)*w
              v = (E-C) / sqrt(transpose(E-C) * (E-C))
              # 4 - Calculate hyperplane (small) rotation, and small shift
-             w = w + hcat(u, v) * vcat(hcat(-a_sq, -a), hcat(a, -a_sq)) * vcat(transpose(w)*u, transpose(w)*v)
+             w = w + hcat(u, v) * vcat(hcat(-α_sq, -α), hcat(α, -α_sq)) * vcat(transpose(w)*u, transpose(w)*v)
              w = w / norm(w)
              θ = transpose(w) * C
         end
@@ -71,17 +71,19 @@ function NeuronLearningCycle(x, w, μ₁ᵉ, μ₂ᵉ, c1, c2, tₙ)
                     tₙ = tₙ + 1
                 end
             
-            p = 1
-            if wx < θ
-                μ₁ᵉ = (c1 *μ₁ᵉ + p*x) / (c1 + p)
-                c1 = c1 + p
-            else
-                μ₂ᵉ = (c2*μ₂ᵉ + p*x) / (c2 + p)
-                c2 = c2 + p
-            end
+                p = 1
+                if wx < θ
+                    μ₁ᵉ = (c1 *μ₁ᵉ + p*x) / (c1 + p)
+                    c1 = c1 + p
+                else
+                    μ₂ᵉ = (c2*μ₂ᵉ + p*x) / (c2 + p)
+                    c2 = c2 + p
+                end
         
-        else
-            p = 0
+            else
+                p = 0
+            end
         end
     end
 end
+export NeuronLearningCycle!
