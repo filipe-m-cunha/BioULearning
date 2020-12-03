@@ -17,6 +17,9 @@
 
 # THE SCRIPT OPERATES ON a_N_Grab_for_Assign; BINARIZES IT; FOR EACH CLASS
 # IT SEARCHES FOR THE BEST One_vs_All SEPARATING NEURON
+using Pkg; Pkg.activate("../../helpers/"); Pkg.instantiate()
+include("../helpers/helpers.jl")
+using(Dates)
 time_start_One_vs_All_NC_Assign_Err_Est = datestr(now)
 
 
@@ -39,7 +42,7 @@ wx_N = zeros(n_N, 1); # USEFUL WHEN RUN INDEPENDENTLY
 
 # SEPARATE MATRIX CALC SECTION
 # ----------------------------
-eval(["load classifier_features_filename Means " ]); # TO BE USED ONLY
+#eval(["load classifier_features_filename Means " ]); # TO BE USED ONLY
 #            TO CALC Any_Separate_List ETC FOR GRABBING MEM SAVING PURPOSE
 
 # Separate_Matrix AND RELATED ENTITIES CALCULATION; USED AT 'NEURAL CODE
@@ -62,9 +65,9 @@ end
 Separate_Nr = sum(Separate_Matrix); # AN n_N ELEMENTS VECTOR; EACH
 # ENTRY CONTAINS THE NR OF CLASS Means WHICH RESIDE ON THE +1 HALF
 # SPACE OF THIS HP/ NEURON
-Any_Separate_HP_Total = sum(abs(Separate_Nr) ~= 0 & Separate_Nr ~= Nr_Classes); # TOTAL NR OF
+Any_Separate_HP_Total = sum(determine_ineq(Separate_Nr, 0) & determine_ineq(Separate_Nr, Nr_Classes)); # TOTAL NR OF
 # ANY-SEPARATING HPs; FOR INSPECTION ONLY
-Any_Separate_List = find(abs(Separate_Nr) ~= 0 & Separate_Nr ~= Nr_Classes); # CONTAINS LIST
+Any_Separate_List = find(determine_ineq(Separate_Nr, 0) & determine_ineq(Separate_Nr, Nr_Classes)); # CONTAINS LIST
 # OF HP's [INDEXES TO Separate_Matrix COLUMNS] WHICH SEPARATE
 # "ANY VS REST' CLASSES Means WHERE 'ANY" IS ANY NON-ZERO
 # LIST LENGTH IS Any_Separate_HP_Total
@@ -73,20 +76,20 @@ One_Separate_HP_Total = sum(Separate_Nr .== 1); # FOR INFO ONLY; TOTAL NR OF
 One_Separate_List = find(Separate_Nr .== 1); # FOR INFO ONLY; CONTAINS LIST
 # OF HP's [INDEXES TO Separate_Matrix COLUMNS] WHICH SEPARATE
 # "1 VS ALL" CLASSES Means; LIST LENGTH IS One_Separate_HP_Total
-eval(["save ' multi_epoch_classifier_results_filename ' Separate_Matrix Any_Separate_HP_Total Any_Separate_List  -append"]); #
+#eval(["save ' multi_epoch_classifier_results_filename ' Separate_Matrix Any_Separate_HP_Total Any_Separate_List  -append"]);
 
 # NC ASSIGN SEGMENT
 # -----------------
 a_N_Grab_for_Assign = zeros(Any_Separate_HP_Total, Train_Batch_Size)
 # WE NOW LOAD ASSOCIATION BATCH [BY DEFAULT S_1 BATCH], RUN NEURON, 
 # ACTIVITY [ONLY] AND GRAB
-eval(["load ' classifier_features_filename '  S_1  C_1"])
+#eval(["load ' classifier_features_filename '  S_1  C_1"])
 # BATCH PROCESSING
 for tx =  1 : Train_Batch_Size
     # PICK NEW x
     # ----------
     # HUL INPUT FEATURE VECTOR PREPARE    
-    eval(["S = S_1[:, tx] "]); # DIM IS d 
+    #eval(["S = S_1[:, tx] "]); # DIM IS d 
 
     for nn = 1 : n_N # FOR EACH INPUT SAMPLE RUN THRU ALL n_N = nd * d NEURONS
         # NEURAL OUTPUT, SEMI-LINEAR [NO SAT] NEURAL OUTPUT
@@ -100,7 +103,7 @@ for tx =  1 : Train_Batch_Size
 
 end # NEXT WITHIN BATCH SAMPLE tx
 
-eval(["S_labels = C_1 "])
+#eval(["S_labels = C_1 "])
 # WE TAKE NEURAL CODE [ANY_SEPARATE SUBSET, RESULT OF HUL CLASSIFIER]
 # TRANSPOSE; SUBSTITUTE ALL NON-NEG BY +1; ALL NEG BY -1
 y = 2 * (a_N_Grab_for_Assign .> 0) - 1;# THIS IS A
@@ -134,9 +137,9 @@ for dd = 1 : Nr_Classes # PRE-CALC
     y_column_sums_I[dd, :] = sum(y[indxs_I, :]); # A ROW VECTOR OF DIMENSION
     # Any_Separate_HP_Total; EACH ELEMENT IS THE SUM OF THOSE ELEMENTS OF THE
     # CORRESPONDING COLUMN OF y WHICH BELONG TO THE SELECTED CLASS
-    samples_O_Assgn[dd] = sum(S_labels[Batch_range] ~= Selected_Classes[dd]); # TOTAL SAMPLES 
+    samples_O_Assgn[dd] = sum(determine_ineq(S_labels[Batch_range], Selected_Classes[dd])); # TOTAL SAMPLES 
     #  IN BATCH NOT OF SELECTED CLASS [SUFFIX _O DENOTES "NOT OF SELECTED CLASS"] 
-    indxs_O = find(S_labels[Batch_range] ~= Selected_Classes[dd]); # INDEXES VECTOR OF SAMPLES
+    indxs_O = find(determine_ineq(S_labels[Batch_range], Selected_Classes[dd])); # INDEXES VECTOR OF SAMPLES
     # NOT IN SELECTED CLASS ; EACH indxs ELEMENT RANGES 1 : Batch_Range
     y_column_sums_O[dd, :] = sum(y[indxs_O, :]); # A ROW VECTOR OF DIMENSION
     # Any_Separate_HP_Total; EACH ELEMENT IS THE SUM OF THOSE ELEMENTS OF THE
@@ -215,9 +218,9 @@ time_complete_One_vs_All_NC_Assign_Err_Est = datestr(now)
 # ----------------------
 a_N_Grab_for_Err_Est = zeros(Any_Separate_HP_Total, Test_Batch_Size)
 # WE NOW LOAD S_Test BATCH, RUN NEURON ACTIVITY [ONLY] AND GRAB
-eval(["load ' classifier_features_filename ' S_Test  C_Test " ])
+#eval(["load ' classifier_features_filename ' S_Test  C_Test " ])
 
-eval(["S_labels = C_Test "])
+#eval(["S_labels = C_Test "])
 
 # PRE-CALC
 Batch_range = 1 : Test_Batch_Size
@@ -228,9 +231,9 @@ samples_O = zeros(1, Nr_Classes)
 
 for dd = 1 : Nr_Classes
 
-    samples_I[dd] = sum(S_labels[Batch_range] .== Selected_Classes[dd]); # TOTAL SAMPLES
+    samples_I[dd] = sum(determine_ineq(S_labels[Batch_range], Selected_Classes[dd])); # TOTAL SAMPLES
     #  IN BATCH WITHIN SELECTED CLASS [SUFFIX _I DENOTES "WITHIN"]
-    samples_O[dd] = sum(S_labels[Batch_range] ~= Selected_Classes[dd]); # TOTAL SAMPLES
+    samples_O[dd] = sum(determine_ineq(S_labels[Batch_range], Selected_Classes[dd])); # TOTAL SAMPLES
     #  IN BATCH NOT OF SELECTED CLASS [SUFFIX _O DENOTES 'NOT OF SELECTED
     #  CLASS']
 end
@@ -238,7 +241,7 @@ end
 for tx =  1 : Test_Batch_Size
     # PICK NEW x
     # HUL INPUT FEATURE VECTOR PREPARE    
-    eval(["S = S_Test[:, tx] "]); #zz A FEATURE VECTOR, DIM IS d
+    #eval(["S = S_Test[:, tx] "]); #zz A FEATURE VECTOR, DIM IS d
     
     for nn = 1 : n_N # FOR EACH INPUT SAMPLE RUN THRU ALL n_N = nd * d NEURONS
 
@@ -293,7 +296,7 @@ for tt =  1 : Test_Batch_Size
         One_vs_All_P_Confusion_Matrix...
         (One_vs_All_P_dec_dd, find(S_labels[tt] .== Selected_Classes)) + 1
 
-    if find(S_labels[tt] .== Selected_Classes) ~= One_vs_All_P_dec_dd # ERR EVENT
+    if find(determine_ineq(S_labels[tt] .== Selected_Classes) ,One_vs_All_P_dec_dd) # ERR EVENT
 
         One_vs_All_P_err_ctr[find(S_labels[tt] .== Selected_Classes)] =...
             One_vs_All_P_err_ctr[find(S_labels[tt] .== Selected_Classes)] + 1
@@ -324,9 +327,10 @@ if Top_n_Est .== 1
 
         end # NEXT CLASS dd
 
-        [Sorted_Soft_P_Out, Sorted_indxs] = sort(Soft_P_Out, "descend")
+        #[Sorted_Soft_P_Out, Sorted_indxs] = sort!(Soft_P_Out, rev=True)
+        Sorted_Soft_P_Out = sort!(Soft_P_Out, rev=True)
 
-        if all(S_labels[tt] ~= Selected_Classes[Sorted_indxs[1 : n_Top_n]])#zz
+        if all(determine_ineq(S_labels[tt], Selected_Classes[Sorted_indxs[1 : n_Top_n]]))#zz
 
             Top_n_P_err_ctr = Top_n_P_err_ctr + 1
 
@@ -338,6 +342,6 @@ if Top_n_Est .== 1
 
 end# END TOP-n ERR EST
 
-eval(["save ' multi_epoch_classifier_results_filename ' Perr_One_vs_All_P   Pe_Class_One_vs_All_P   One_vs_All_P_Confusion_Matrix   P_err_Top_n_P   Top_n_Est  n_Top_n   Lambda_Perr   Lambda_Pe_Top_n  -append"]); # SAVE 
+#eval(["save ' multi_epoch_classifier_results_filename ' Perr_One_vs_All_P   Pe_Class_One_vs_All_P   One_vs_All_P_Confusion_Matrix   P_err_Top_n_P   Top_n_Est  n_Top_n   Lambda_Perr   Lambda_Pe_Top_n  -append"]); # SAVE 
 # RESULTS VARS INCL. One_vs_All_P_Confusion_Matrix ETC
 time_finish_HUL = datestr(now)
