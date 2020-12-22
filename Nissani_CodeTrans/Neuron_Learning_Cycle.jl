@@ -1,59 +1,37 @@
-#= Inputs (Hul learning function):
-x  -- Input vector
-w  -- Neural Weight vector
-θ -- Activity threshold
-μ₁ᵉ, μ₂ᵉ -- Current Networks hp 2 sides mean estimates
-c1, c2 -- Current Neurons hp 2 sides means estimate cumulative weighting factor
+using LinearAlgebra
 
-t_n -- neuron current self-time
-
-Input (Other)
-
-ϕ
-ϵ
-a 
-mu_est_mode 
-mu_est_par 
-R_start 
-E_start 
-d 
-
-Output:
-w -- updated Weight vector
-theta -- updated activity threshold
-mul1_est, mu2_est -- Updated hp 2 sides mean estimates
-c1, c2 -- Updated hp 2 sides mean estimates cumulative weighting factor
-t_N -- updated neuron current time
-=# 
-
-function NeuronLearningCycle(x, w, θ, μ₁ᵉ, μ₂ᵉ, c1, c2, tₙ, ϕ, ϵ, α, α_sq, μᵉmode, μᵉpar, R_start, E_start, d)
-    w_sqrt_norm = transpose(w).*w
+function NeuronLearningCycle(x::Array{Float64} w::Array{Float64}, θ::Array{Float64}, μ₁::Array{Float64}, μ₂::Array{Float64}, c1::Array{Float64}, c2::Array{Float64}, tₙ::Int64, ϕ::Array{Float64}, ϵ::Float64, α::Float64, μᵉmode, μᵉpar, R_start::Int64, E_start::Int64)
+    w_sqrt_norm = dot(transpose(w), w)
     w_norm = norm(w)
-    wx = transpose(w) .* x
+    wx = dot(w, x)
 
     #Rotation process
     if tₙ ≥ R_start
         #Define order of activation
         #Rotation conditioned that x is within ϕ from hyperplane
-        if (wx ≥ (θ - ϕ)) & (wx ≤ (θ + ϕ))
+        if (wx ≥ (θ - ϕ)) & (wx ≤ (θ + ϕ)) 
              # 1 - Compute C, intersection point of segment (μ₂ - μ₁) within hyperplane 
-             C = μ₁ᵉ + ((θ - transpose(w)*μ₁ᵉ)/(transpose(w) * (μ₂ᵉ - μ₁ᵉ)))*(μ₂ᵉ - μ₁ᵉ)
+             C = μ₁ + ((θ - dot(dot(transpose(w), μ₁ᵉ), (μ₂ - μ₁)))/(dot(transpose(w), (μ₂ - μ₁))))
              # 2 - Compute E, intersection point of orthonormal projection of x into hyperplane 
-             E = x + ((θ - transpose(w)*x)/w_sqrt_norm)*w
+             E = x + ((θₜ - wx)*w)./w_norm
              # 3 - Calculate vectors to define both planes, Po and P
-             u = (sign(transpose(w)*x - θ)/w_norm)*w
-             v = (E-C) / sqrt(transpose(E-C) * (E-C))
+             u = sign(wx - θ).*(w./w_norm)
+             v = (E-C)./norm(E - C)
              # 4 - Calculate hyperplane (small) rotation, and small shift
-             w = w + hcat(u, v) * vcat(hcat(-α_sq, -α), hcat(α, -α_sq)) * vcat(transpose(w)*u, transpose(w)*v)
+             w = w + hcat(u, v) * [-(α^2)/2 -α; α -(α^2)/2] * [dot(w, u); dot(w, v)]
              w = w / norm(w)
-             θ = transpose(w) * C
+             θ = dot(w, C)
         end
     end
 
-    wx = transpose(w)*x
+    #Update Value
+    wx = dot(w, x)
     #Shift process
     if (wx ≥ θ) & (wx ≤ (θ + ϕ))
         θ = θ - ϵ
+        tₙ = tₙ + 1
+    elseif (wx ≤ θ) & (wx ≥ (θ - ϕ))
+        θ = θ + ϵ
         tₙ = tₙ + 1
     end
 
@@ -63,9 +41,9 @@ function NeuronLearningCycle(x, w, θ, μ₁ᵉ, μ₂ᵉ, c1, c2, tₙ, ϕ, ϵ,
             if (wx ≥ θ - μᵉpar) & (wx ≤ (θ + μᵉpar))
                 if tₙ == E_start
                     if wx < θ
-                        μ₂ᵉ = x - 2*abs(wx - θ) * w
+                        μ₂ = x - 2*abs(wx - θ)*w
                     else
-                        μ₁ᵉ = x - 2*abs(wx - θ)*w
+                        μ₁ = x - 2*abs(wx - θ)*w
                     end
 
                     tₙ = tₙ + 1
@@ -73,10 +51,10 @@ function NeuronLearningCycle(x, w, θ, μ₁ᵉ, μ₂ᵉ, c1, c2, tₙ, ϕ, ϵ,
             
                 p = 1
                 if wx < θ
-                    μ₁ᵉ = (c1 *μ₁ᵉ + p*x) / (c1 + p)
+                    μ₁ = (c1 *μ₁ + p*x) / (c1 + p)
                     c1 = c1 + p
                 else
-                    μ₂ᵉ = (c2*μ₂ᵉ + p*x) / (c2 + p)
+                    μ₂ = (c2*μ₂ + p*x) / (c2 + p)
                     c2 = c2 + p
                 end
         
@@ -85,5 +63,5 @@ function NeuronLearningCycle(x, w, θ, μ₁ᵉ, μ₂ᵉ, c1, c2, tₙ, ϕ, ϵ,
             end
         end
     end
+    return w, θₜ, μ₁, μ₂, c1, c2, tₙ
 end
-export NeuronLearningCycle!
