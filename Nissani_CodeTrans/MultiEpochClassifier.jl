@@ -1,22 +1,37 @@
+using DataFrames
+using CSV
+using HTTP
+using MLDataUtils
+
+data_link = "http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
+iris = DataFrame!(CSV.File(HTTP.get(data_link).body; header = false))
+
+
+X, Y = MLDataUtils.load_iris()
+Xs, Ys = shuffleobs((X, Y))
+
+((cv_X, cv_Y), (test_X, test_Y)) = splitobs((Xs, Ys); at = 0.85)
+
 @time begin
     start_from_first_batch = 1
-    #display_class_names = 0
-    display_dynamics = 1
-    dynamics_plot = 50
 
     if start_from_first_batch == 1
-        classifier_features_file = "class" #Inserir classificador
-        multi_epoch_results = "class2" #Inserir
+        classifier_features_file = Xs
 
         epoch_nr = 1
-        nmr_training_batches = "nmr_training_batches"
-        test_batch_size = "size"
-        classes = "classes"
-        d = "Space_Dim"
-        train_batch_size = "Train_Batch_Size"
-        nr_Classes = "nmr_classes"
+        nmr_training_batches = 10
+        test_batch_size = 10
+        classes = ["Iris-setosa", "Iris-virginica"]
+        d = 4
+        train_batch_size = 10
+        nr_Classes = 2
 
-        #if display_class_names == 1 (...)
+        if display_class_names == 1
+            println(nr_Classes, "Classes, ")
+            for i in 1:nr_Classes
+                println(classes[i])
+            end
+        end
 
         hyp_nmr = 2 #Change according to nmr of hyperplanes per dim
         Ω = 2.5
