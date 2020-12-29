@@ -1,6 +1,8 @@
 using LinearAlgebra
 
-function NeuronLearningCycle(x::Array{Float64} w::Array{Float64}, θ::Array{Float64}, μ₁::Array{Float64}, μ₂::Array{Float64}, c1::Array{Float64}, c2::Array{Float64}, tₙ::Int64, ϕ::Array{Float64}, ϵ::Float64, α::Float64, μᵉmode, μᵉpar, R_start::Int64, E_start::Int64)
+include("NeuronActivity.jl")
+
+function NeuronLearningCycle(x::Array{Float64, 1}, w::Array{Float64,1}, θ::Array{Float64, 1}, μ₁::Array{Float64, 1}, μ₂::Array{Float64, 1}, c1::Array{Float64, 1}, c2::Array{Float64}, tₙ::Array{Float64, 1}, ϕ::Float64, ϵ::Float64, α::Float64, μᵉmode::Float64, μᵉpar::Float64, R_start::Int64, E_start::Int64)
     w_sqrt_norm = dot(transpose(w), w)
     w_norm = norm(w)
     wx = dot(w, x)
@@ -11,7 +13,7 @@ function NeuronLearningCycle(x::Array{Float64} w::Array{Float64}, θ::Array{Floa
         #Rotation conditioned that x is within ϕ from hyperplane
         if (wx ≥ (θ - ϕ)) & (wx ≤ (θ + ϕ)) 
              # 1 - Compute C, intersection point of segment (μ₂ - μ₁) within hyperplane 
-             C = μ₁ + ((θ - dot(dot(transpose(w), μ₁ᵉ), (μ₂ - μ₁)))/(dot(transpose(w), (μ₂ - μ₁))))
+             C = μ₁ + ((θ - dot(dot(transpose(w), μ₁), (μ₂ - μ₁)))/(dot(transpose(w), (μ₂ - μ₁))))
              # 2 - Compute E, intersection point of orthonormal projection of x into hyperplane 
              E = x + ((θₜ - wx)*w)./w_norm
              # 3 - Calculate vectors to define both planes, Po and P
@@ -36,7 +38,7 @@ function NeuronLearningCycle(x::Array{Float64} w::Array{Float64}, θ::Array{Floa
     end
 
     # μ estimation process
-    if tₙ ≥ E_start
+    if tₙ ≥ E_start | tₙ <= E_start
         if μᵉmode == 0
             if (wx ≥ θ - μᵉpar) & (wx ≤ (θ + μᵉpar))
                 if tₙ == E_start
@@ -63,5 +65,5 @@ function NeuronLearningCycle(x::Array{Float64} w::Array{Float64}, θ::Array{Floa
             end
         end
     end
-    return w, θₜ, μ₁, μ₂, c1, c2, tₙ
+    return w, θ, μ₁, μ₂, c1, c2, tₙ
 end
