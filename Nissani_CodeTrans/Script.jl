@@ -60,10 +60,14 @@ Xs, Ys = shuffleobs((X, Y))
                                                                 μᵉpar, E_start, R_start, time_var, Φvar, cv_X);
 end
 
-##y_N = zeros(nr_neurons, 1);
-##wx_N = zeros(nr_neurons, 1)
+y_N = zeros(nr_neurons, 1);
+wx_N = zeros(nr_neurons, 1)
 
-##separateMatrix = zeros(nr_Classes, nr_neurons)
+separateMatrix = zeros(nr_Classes, nr_neurons)
 
-##for nn = 1:nr_neurons
+for nn = 1:nr_neurons
+    for dd = 1:nr_Classes
+        do(nothing)
+    end
+end
     
