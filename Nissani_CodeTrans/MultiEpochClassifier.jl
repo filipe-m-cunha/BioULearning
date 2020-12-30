@@ -11,7 +11,7 @@ include("NeuronActivity.jl")
 function MultiEpochClassifier(cv_X, nmr_training_batches::Int64, classes::Array{String, 1}, d::Int64, 
                             train_batch_size::Int64, epoch_nr::Int64=1, display_class_names::Int64=0, hyp_nmr::Int64=2, Ω::Float64=2.5, 
                             θshift::Float64=0.0, σ::Float64=0.8, μᵉmode::Float64=0.0, μᵉpar::Float64=4.0, 
-                            E_start::Int64=150, R_start::Int64=200, time_var::Int64=1, Φvar::Float64=1.0)
+                            E_start::Int64=15, R_start::Int64=20, time_var::Int64=1, Φvar::Float64=1.0)
     #Calculating the total number of training cycles
     total_train_batch_nmr = epoch_nr*nmr_training_batches
 
@@ -64,22 +64,22 @@ function MultiEpochClassifier(cv_X, nmr_training_batches::Int64, classes::Array{
     
     for j in 1:total_train_batch_nmr
         #If specified, vary values ϵ, α, Φ proportionally to log($parametervar)
-        if time_var ==1
-            global ϵ *= ϵvar^(j-1)
-            global α *= αvar^(j-1)
-            global Φ *= Φvar^(j-1)
+        if time_var == 1
+            ϵ *= ϵvar^(j-1)
+            α *= αvar^(j-1)
+            Φ *= Φvar^(j-1)
         end
 
         #Actual training section
-        for n in 1: train_batch_size
+        for s in 1: train_batch_size
             #Shuffle training set, and a batch will be extracted from it
             cv_X = shuffleobs((cv_X))
             for k in 1:nr_neurons
                 #Update neuron values
-                (w_N[:, k], θₙ[k], μ₁[:, k], μ₂[:, k], c1[k], c2[k], tₙ[k]) = NeuronLearningCycle(cv_X[:, s],w_N[:, s], θₙ[k], μ₁[:, k], μ₂[:, k], c1[k], c2[k], tₙ[k], Φ, ϵ, α,  μᵉmode, μᵉpar, R_start, E_start)
+                (w_N[:, k], θₙ[k], μ₁[:, k], μ₂[:, k], c1[k], c2[k], tₙ[k]) = NeuronLearningCycle(cv_X[:, s],w_N[:, s], θₙ[: ,k], μ₁[:, k], μ₂[:, k], c1[:, k], c2[:, k], tₙ[:, k], Φ, ϵ, α,  μᵉmode, μᵉpar, R_start, E_start)
                 (y_N[k], wx_N[k]) = NeuronActivity(cv_X[:, s], w_N[:, k], θₙ[k])
                 #Update global timer value
-                global ss += 1
+                ss += 1
             end
         end
     end
