@@ -45,7 +45,11 @@ function MultiEpochClassifier(cv_X, nmr_training_batches::Int64, classes::Array{
         w_N[:, i:(i+d-1)] = Diagonal(ones(d))
     end
     #Initialize the hyperplane parameter values
-    θₙ = θspacing*ones(d, hyp_nmr)
+    θ = θspacing*ones(d, hyp_nmr)
+    for nn in 1:hyp_nmr
+        θ[:, nn] = nn*θ[:, nn]
+    end
+    θ = reshape(θ, size(θ)[1]*size(θ)[2], 1)
     #Initialize clusters c1 and c2
     c1 = zeros(nr_neurons, 1)
     c2 = zeros(nr_neurons, 1)
@@ -62,7 +66,7 @@ function MultiEpochClassifier(cv_X, nmr_training_batches::Int64, classes::Array{
     ss = 0
     b_start = 1
     
-    for j in 1:total_train_batch_nmr
+    for j in b_start:total_train_batch_nmr
         #If specified, vary values ϵ, α, Φ proportionally to log($parametervar)
         if time_var == 1
             ϵ *= ϵvar^(j-1)
@@ -72,17 +76,17 @@ function MultiEpochClassifier(cv_X, nmr_training_batches::Int64, classes::Array{
 
         #Actual training section
         for s in 1: train_batch_size
+            #Update global timer value
+            ss += 1
             #Shuffle training set, and a batch will be extracted from it
             cv_X = shuffleobs((cv_X))
             for k in 1:nr_neurons
                 #Update neuron values
-                (w_N[:, k], θₙ[k], μ₁[:, k], μ₂[:, k], c1[k], c2[k], tₙ[k]) = NeuronLearningCycle(cv_X[:, s],w_N[:, s], θₙ[: ,k], μ₁[:, k], μ₂[:, k], c1[:, k], c2[:, k], tₙ[:, k], Φ, ϵ, α,  μᵉmode, μᵉpar, R_start, E_start)
-                (y_N[k], wx_N[k]) = NeuronActivity(cv_X[:, s], w_N[:, k], θₙ[k])
-                #Update global timer value
-                ss += 1
+                (w_N[:, k], θ[k], μ₁[:, k], μ₂[:, k], c1[k], c2[k], tₙ[k]) = NeuronLearningCycle(cv_X[:, s],w_N[:, k], θ[k], μ₁[:, k], μ₂[:, k], c1[k], c2[k], tₙ[k], Φ, ϵ, α,  μᵉmode, μᵉpar, R_start, E_start)
+                (y_N[k], wx_N[k]) = NeuronActivity(cv_X[:, s], w_N[:, k], θ[k])
             end
         end
     end
 
-    return w_N, θₙ, μ₁, μ₂, c1, c2, tₙ, y_N, wx_N
+    return w_N, θ, μ₁, μ₂, c1, c2, tₙ, y_N, wx_N
 end

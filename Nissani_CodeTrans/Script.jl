@@ -31,20 +31,6 @@ Xs, Ys = shuffleobs((X, Y))
     #R_start = 200
     #time_var = 1
     #Φvar = 1.0
-    w_N, θₙ, μ₁, μ₂, c1, c2, tₙ, y_N, wx_N = MultiEpochClassifier(cv_X, nmr_training_batches, 
-                                                                classes, d, train_batch_size, epoch_nr,
-                                                                display_class_names, hyp_nmr, Ω, θshift, σ, μᵉmode, 
-                                                                μᵉpar, E_start, R_start, time_var, Φvar);
+    w_N, θ, μ₁, μ₂, c1, c2, tₙ, y_N, wx_N = MultiEpochClassifier(cv_X, nmr_training_batches, 
+                                                                classes, d, train_batch_size, epoch_nr);
 end
-
-y_N = zeros(nr_neurons, 1);
-wx_N = zeros(nr_neurons, 1)
-
-separateMatrix = zeros(nr_Classes, nr_neurons)
-
-for nn = 1:nr_neurons
-    for dd = 1:nr_Classes
-        do(nothing)
-    end
-end
-    
