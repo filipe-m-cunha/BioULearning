@@ -15,7 +15,7 @@ include("NeuronActivity.jl")
 
     y_N = zeros(nr_neurons, 1)
     wx_N = zeros(nr_neurons, 1)
-    μ₁, μ₂ = load("../JLD/var.jld", "means") #Load relevant saved values (after training) for the means
+    μ₁, μ₂ = load("../JLD/var.jld", "miu1", "miu2") #Load relevant saved values (after training) for the means
 
     separateMatrix = zeros(nr_Classes, nr_neurons)
 
