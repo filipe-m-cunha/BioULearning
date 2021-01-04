@@ -3,6 +3,7 @@ using CSV;
 using HTTP;
 using MLDataUtils;
 using LinearAlgebra;
+using JLD;
 
 include("MultiEpochClassifier.jl")
 data_link = "http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
@@ -34,3 +35,5 @@ Xs, Ys = shuffleobs((X, Y))
     w_N, θ, μ₁, μ₂, c1, c2, tₙ, y_N, wx_N = MultiEpochClassifier(cv_X, nmr_training_batches, 
                                                                 classes, d, train_batch_size, epoch_nr);
 end
+
+save("../JLD/var.jld", "miu1", μ₁, "miu2", μ₂)
