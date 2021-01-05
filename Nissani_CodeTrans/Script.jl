@@ -6,7 +6,7 @@ using LinearAlgebra;
 using JLD;
 
 include("MultiEpochClassifier.jl")
-include("/home/filipe/Documents/Gulbenkian/Code/GLBNK-Unsupervised/helpers/helpers.jl")
+include("RG_Unsuper\GLBNK-Unsupervised\helpers\helpers.jl")
 
 data_link = "http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
 iris = DataFrame!(CSV.File(HTTP.get(data_link).body; header = false))
