@@ -9,17 +9,18 @@ include("NeuronActivity.jl")
 function NeuronLearningCycle(x::Array{Float64, 1}, w::Array{Float64,1}, θ::Float64, 
                             μ₁::Array{Float64, 1}, μ₂::Array{Float64, 1}, c1,
                             c2, tₙ, ϕ::Float64, ϵ::Float64, α::Float64, 
-                            μᵉmode::Float64, μᵉpar::Float64, R_start::Int64, E_start::Int64)
+                            μᵉmode::Float64, μᵉpar::Float64, R_start::Int64, E_start::Int64, rotC::Int64, ShiftLC::Int64, ShiftRC::Int64)
 
     #Calculate norm, squared norm and dot product between w and x, in order to store the values.
     w_sqrt_norm = transpose(w)*w
     w_norm = norm(w)
     wx = transpose(w)*x
-
     #Rotation process
     if tₙ ≥ R_start
+        #println("Here")
         #Rotation will only be applied if x is sufficiently close (distance ϕ) to the hyperplane.
-        if (wx ≥ (θ - ϕ)) & (wx ≤ (θ + ϕ)) 
+        if (wx ≥ (θ - ϕ)) & (wx ≤ (θ + ϕ))
+            rotC += 1
              # 1 - Compute C, intersection point of segment (μ₂ - μ₁) with the hyperplane 
              C = μ₁ + ((θ - transpose(w)*μ₁)/(transpose(w)*(μ₂ - μ₁)))*(μ₂ - μ₁)
              # 2 - Compute E, intersection point of orthonormal projection of x into hyperplane 
@@ -39,10 +40,12 @@ function NeuronLearningCycle(x::Array{Float64, 1}, w::Array{Float64,1}, θ::Floa
     #Shift process
     #If x is near hyperplane (at a distance ϕ) and on the right, shift hyperplane to the left.
     if (wx ≥ θ) & (wx ≤ (θ + ϕ))
+        ShiftRC += 1
         θ = θ - ϵ
         tₙ = tₙ + 1
     #If x is near hyperplane (at a distance ϕ) and on the left, shift hyperplane to the right.
     elseif (wx ≤ θ) & (wx ≥ (θ - ϕ))
+        ShiftLC += 1
         θ = θ + ϵ
         tₙ = tₙ + 1
     else
@@ -55,6 +58,7 @@ function NeuronLearningCycle(x::Array{Float64, 1}, w::Array{Float64,1}, θ::Floa
             #If wx is near θ (distance μᵉpar), change means accordingly
             if (wx ≥ θ - μᵉpar) & (wx ≤ (θ + μᵉpar))
                 if tₙ == E_start
+                    #println("Here1")
                     #If sample is in original half-space
                     if wx < θ
                         μ₂ = x - 2*abs(wx - θ)*w
@@ -81,5 +85,5 @@ function NeuronLearningCycle(x::Array{Float64, 1}, w::Array{Float64,1}, θ::Floa
             end
         end
     end
-    return w, θ, μ₁, μ₂, c1, c2, tₙ
+    return w, θ, μ₁, μ₂, c1, c2, tₙ, rotC, ShiftRC, ShiftLC
 end

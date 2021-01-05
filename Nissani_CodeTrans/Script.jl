@@ -6,7 +6,7 @@ using LinearAlgebra;
 using JLD;
 
 include("MultiEpochClassifier.jl")
-include("RG_Unsuper\GLBNK-Unsupervised\helpers\helpers.jl")
+#include("RG_Unsuper\GLBNK-Unsupervised\helpers\helpers.jl")
 
 data_link = "http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
 iris = DataFrame!(CSV.File(HTTP.get(data_link).body; header = false))
@@ -15,6 +15,11 @@ X, Y = MLDataUtils.load_iris()
 Xs, Ys = shuffleobs((X, Y))
 
 ((cv_X, cv_Y), (test_X, test_Y)) = splitobs((Xs, Ys); at = 0.85)
+
+function softmax(a)
+    c = maximum(a)
+    exp.(a .- c) / sum(exp.(a .- c))
+end
 
 @time begin
     epoch_nr = 1;
@@ -46,6 +51,7 @@ end
     nr_neurons = d*2
     nr_Classes = length(classes)
 
+    #Means would be extracted from the classifier features file
     y_N = zeros(nr_neurons, 1)
     wx_N = zeros(nr_neurons, 1)
     #μ₁, μ₂ = load("../JLD/var.jld", "miu1", "miu2") Load relevant saved values (after training) for the means
@@ -93,6 +99,7 @@ end
 
     batch_range = 1:train_batch_size-2
 
+    classes = [0; 1]
     for dd in 1:nr_Classes
         samples_I_assign[dd] = count(x->x==classes[dd], c1[batch_range])
         indexes_I = findall(x->x==classes[dd], c1[batch_range])
@@ -120,6 +127,46 @@ end
 
     one_vs_all_best_neuron_perr = one_vs_all_sep_array_per[:, 1]
     one_vs_all_best_neuron_metrics_per = one_vs_all_sep_array_per[:, 2]
+
+    for i in 1:nr_Classes
+
+        best_metric = -∞
+
+        for nn in 1:any_separate_hp_total
+            candidate_metric = y_column_sums_I[i, nn] - lambda_pe_top_n*y_column_sums_O[i, nn]
+            if candidate_metric > best_metric
+                best_metric = candidate_metric
+                best_neuron = nn
+            end
+        end
+        one_vs_all_best_neuron_metrics_pe_top_n[i, 1] = best_neuron
+        one_vs_all_best_neuron_metrics_pe_top_n[i, 2] = best_metric
+
+    end
+
+    one_vs_all_best_neuron_neuron_pe_top_n = one_vs_all_sep_array_pe_top_n[:, 1]
+    one_vs_all_best_neuron_metrics_pe_top_n = one_vs_all_sep_array_pe_top_n[:, 2]
+
 end
+
+a_n_grab_for_err_est = zeros(any_separate_hp_total, test_batch_size)
+batch_range = 1:test_batch_size-2
+
+sample_I = zeros(1, nr_Classes)
+sample_O = zeros(1, nr_Classes)
+
+for dd in 1:nr_Classes
+    samples_I[dd] = sum(S_labels[batch_range] == classes[dd])
+    samples_O[dd] = sum(S_labels[batch_range] != classes[dd])
+end
+
+for tx in 1:test_batch_size
+    for nn in 1:nr_neurons
+        (y_N[nn], wx_N[nn]) = NeuronActivity(cv_X[:, tx], wx_N[:, nn], θ[nn])
+    end
+
+    a_n_grab_for_err_est[:, tx] = wx_N[any_separate_list] - θ[any_separate_list]
+    a_shift = -max(a_n_grab_for_err_est[:, tx])
+    a_n_grab_for_err_est[:, tx] = softmax(a_n_grab_for_err_est[:, tx] + a_shift)
 
 #save("../JLD/var.jld", "miu1", μ₁, "miu2", μ₂)
