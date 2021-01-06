@@ -6,6 +6,7 @@ using LinearAlgebra;
 using JLD;
 
 include("MultiEpochClassifier.jl")
+include("MultiEpoch.jl")
 #include("RG_Unsuper\GLBNK-Unsupervised\helpers\helpers.jl")
 
 data_link = "http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
@@ -22,25 +23,14 @@ function softmax(a)
 end
 
 @time begin
-    epoch_nr = 10;
+    epoch_nr = 1;
     nmr_training_batches = 1
     test_batch_size = 10
     train_batch_size = 128
     classes = ["Iris-setosa", "Iris-virginica", "Iris-versicolor"]
     d = 4; 
-    #display_class_names = 0;
-    #hyp_nmr = 2
-    #Ω = 2.5
-    #θshift = 0.0
-    #σ = 0.8
-    #μᵉmode = 0.0
-    #μᵉpar = 4.0
-    #E_start = 15
-    #R_start = 200
-    #time_var = 1
-    #Φvar = 1.0
-    w_N, θ, μ₁, μ₂, c1, c2, tₙ, y_N, wx_N, rotC, ShiftLC, ShiftRC = MultiEpochClassifier(cv_X, nmr_training_batches, 
-                                                                classes, d, train_batch_size, epoch_nr);
+    hyp_nmr = 10
+    (w_N, wx_N, θ, μ₁, μ₂, c1, c2, y_N) = @fastmath MultiEpoch(cv_X, nmr_training_batches, d, train_batch_size, epoch_nr)
 end
 
 function placement(x, wX)

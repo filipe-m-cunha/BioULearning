@@ -28,11 +28,11 @@ function MultiEpochClassifier(cv_X, nmr_training_batches::Int64, classes::Array{
     #Initializing hyperplanes according to a grid, TODO:Change this
     θspacing = Ω/(hyp_nmr + 1)
     #Initialize ϵ according to σ
-    ϵ = 0.33
+    ϵ = 0.033*σ
     #Initialize α according to σ
-    α = 0.04
+    α = 0.04*σ
     #Initialize Φ according to σ
-    Φ = 2.0
+    Φ = 2.0*σ
     #Values of parameters ϵ, α, Φ will be changed with training, by a parameter proportional to log($parametervar)
     ϵvar = exp(log(0.1228)/total_train_batch_nmr)
     αvar = exp(log(0.5604)/total_train_batch_nmr)
@@ -50,6 +50,7 @@ function MultiEpochClassifier(cv_X, nmr_training_batches::Int64, classes::Array{
         θ[:, nn] = nn*θ[:, nn]
     end
     θ = reshape(θ, size(θ)[1]*size(θ)[2], 1)
+    θ = θ.+θshift
     #Initialize clusters c1 and c2
     c1 = zeros(nr_neurons, 1)
     c2 = zeros(nr_neurons, 1)
