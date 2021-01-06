@@ -36,7 +36,10 @@ function NeuronLearningCycle(x::Array{Float64, 1}, w::Array{Float64,1}, θ::Floa
     end
 
     #Update value of the dot product between w and x
+    #println("w: ", w)
     wx = transpose(w)*x
+    #println("wx: ", wx)
+    #println("x: ", x)
     #Shift process
     #If x is near hyperplane (at a distance ϕ) and on the right, shift hyperplane to the left.
     if (wx ≥ θ) & (wx ≤ (θ + ϕ))

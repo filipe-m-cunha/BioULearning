@@ -23,14 +23,14 @@ function softmax(a)
 end
 
 @time begin
-    epoch_nr = 1;
+    epoch_nr = 10000;
     nmr_training_batches = 1
     test_batch_size = 10
     train_batch_size = 128
     classes = ["Iris-setosa", "Iris-virginica", "Iris-versicolor"]
-    d = 4; 
-    hyp_nmr = 10
-    (w_N, wx_N, θ, μ₁, μ₂, c1, c2, y_N) = @fastmath MultiEpoch(cv_X, nmr_training_batches, d, train_batch_size, epoch_nr)
+    d = 4
+    #hyp_nmr = 10
+    (w_N, wx_N, θ, μ₁, μ₂, c1, c2, y_N) = @fastmath MultiEpoch(cv_X, nmr_training_batches, d, train_batch_size, epoch_nr);
 end
 
 function placement(x, wX)
