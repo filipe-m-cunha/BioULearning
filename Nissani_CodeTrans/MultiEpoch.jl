@@ -2,15 +2,15 @@ include("Neuron_Learning_Cycle.jl")
 include("NeuronActivity.jl")
 
 function MultiEpoch(training_set, nmr_training_batches::Int64, d::Int64,
-                    size_training_batch::Int64, nmr_epochs::Int64, nmr_hyp::Int64=2,
-                    Ω::Float64=5.0,  σ::Float64=0.8, μᵉmode::Float64=0.0, μᵉpar::Float64=4.0, 
-                    E_start::Int64=200, R_start::Int64=300)
+                    size_training_batch::Int64, nmr_epochs::Int64, nmr_hyp::Int64=4,
+                    Ω::Float64=10.0,  σ::Float64=0.8, μᵉmode::Float64=0.0, μᵉpar::Float64=4.0, 
+                    E_start::Int64=10, R_start::Int64=20)
 
     nr_neurons = d*nmr_hyp
-    θshift = 0.0
+    θshift = 0.1
     θspacing = Ω/(nmr_hyp + 1)
-    ϵ = 0.008*σ
-    α = 0.04
+    ϵ = 2*σ
+    α = 0.5
     ϕ = 2.0
 
     w_N = zeros(d, nr_neurons)
@@ -47,7 +47,7 @@ function MultiEpoch(training_set, nmr_training_batches::Int64, d::Int64,
                 #println("w_N: ", w_N[:, k])
                 #println("theta: ", θ[k])
                 (w_N[:, k], θ[k], μ₁[:, k], μ₂[:, k], c1[k], c2[k], tₙ[k]) = @fastmath NeuronLearningCycle(training_set[:, j],w_N[:, k], θ[k], μ₁[:, k], μ₂[:, k], c1[k], c2[k], tₙ[k], ϕ, ϵ, α,  μᵉmode, μᵉpar, R_start, E_start)
-                (wx_N[k], y_N[k]) = @fastmath NeuronActivity(cv_X[:, j], w_N[:, k], θ[k])
+                (wx_N[k], y_N[k]) = @fastmath NeuronActivity(training_set[:, j], w_N[:, k], θ[k])
                 if count(x -> (isnan(x)), w_N) > 0
                     println("Failed at neuron:")
                     println(k)

@@ -5,7 +5,6 @@ using MLDataUtils;
 using LinearAlgebra;
 using JLD;
 
-include("MultiEpochClassifier.jl")
 include("MultiEpoch.jl")
 #include("RG_Unsuper\GLBNK-Unsupervised\helpers\helpers.jl")
 

@@ -5,7 +5,6 @@ using MLDataUtils;
 using LinearAlgebra;
 using JLD;
 
-include("MultiEpochClassifier.jl")
 #include("RG_Unsuper\GLBNK-Unsupervised\helpers\helpers.jl")
 
 data_link = "http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
