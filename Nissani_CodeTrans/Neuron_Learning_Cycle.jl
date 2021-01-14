@@ -42,18 +42,17 @@ function NeuronLearningCycle(x::Array{Float64, 1}, w::Array{Float64,1}, θ::Floa
     #println("x: ", x)
     #Shift process
     #If x is near hyperplane (at a distance ϕ) and on the right, shift hyperplane to the left.
-    if (wx ≥ θ) & (wx ≤ (θ + ϕ))
+    if θ < wx ≤ θ + ϕ
         #ShiftRC += 1
         θ = θ - ϵ
         tₙ = tₙ + 1
     end
     #If x is near hyperplane (at a distance ϕ) and on the left, shift hyperplane to the right.
-    if (wx < θ) & (wx ≥ (θ - ϕ))
+    if θ - ϕ ≤ wx ≤ θ
         #ShiftLC += 1
         θ = θ + ϵ
         tₙ = tₙ + 1
-    
-        θ = θ
+
     end
     if (wx > θ + ϕ) | (wx < θ - ϕ)
         θ = θ
