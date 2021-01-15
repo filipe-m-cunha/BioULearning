@@ -2,12 +2,12 @@ include("Neuron_Learning_Cycle.jl")
 include("NeuronActivity.jl")
 
 function MultiEpoch(training_set, nmr_training_batches::Int64, d::Int64,
-                    size_training_batch::Int64, nmr_epochs::Int64, nmr_hyp::Int64=4,
-                    Ω::Float64=10.0,  σ::Float64=0.8, μᵉmode::Float64=0.0, μᵉpar::Float64=4.0, 
+                    size_training_batch::Int64, nmr_epochs::Int64, nmr_hyp::Int64=8,
+                    Ω::Float64=0.05,  σ::Float64=0.8, μᵉmode::Float64=0.0, μᵉpar::Float64=4.0, 
                     E_start::Int64=10, R_start::Int64=20)
 
     nr_neurons = d*nmr_hyp
-    θshift = 0.1
+    θshift = 1
     θspacing = Ω/(nmr_hyp + 1)
     ϵ = 2*σ
     α = 0.5
