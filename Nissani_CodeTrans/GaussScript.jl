@@ -77,7 +77,7 @@ x3 = rand(ker3, 1000)
 #Shuffle the kernels
 cv_X = shuffleobs(hcat(x1, x3))
 #Initialize hyperparameters
-epoch_nr = 10^6;
+epoch_nr = 100000;
 nmr_training_batches = 1
 test_batch_size = 10
 train_batch_size = 2000
@@ -146,4 +146,5 @@ plot(
     layer(fs16, -10, 10, Theme(default_color=color("red")))
 )
 
+#If saving image locally is required, uncomment following line
 #draw(PNG("plot10.png"), ploting)
