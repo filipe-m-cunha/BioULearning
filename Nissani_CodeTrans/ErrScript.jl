@@ -32,18 +32,18 @@ end
     (w_N, wx_N, θ, μ₁, μ₂, c1, c2, y_N) = @fastmath MultiEpoch(cv_X, nmr_training_batches, d, train_batch_size, epoch_nr);
 end
 
-function placement(x, wX)
+function placement(x, wX, θ)
     place = zeros(size(wX)[2], 1)
     for i in 1:size(wX)[2]
-        place[i] = sign(transpose(wX[:, i])*x)
+        place[i] = sign(transpose(wX[:, i]./sum(wX[:, i]))*x - θ[i])
     end
     return place
 end
 
-function placeDataset(X, wX)
+function placeDataset(X, wX, θ)
     fPlace = zeros(size(X)[2], size(wX)[2])
     for i in 1:size(X)[2]
-        fPlace[i, :] = transpose(placement(X[:, i], wX))
+        fPlace[i, :] = transpose(placement(X[:, i], wX, θ))
     end
     return fPlace
 end

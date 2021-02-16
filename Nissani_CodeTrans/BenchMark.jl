@@ -7,6 +7,8 @@ using JLD;
 using Statistics;
 using Distributed;
 using SharedArrays;
+using LIBSVM;
+using Printf;
 
 X, Y = MLDataUtils.load_iris()
 Xs, Ys = shuffleobs((X, Y))
@@ -64,3 +66,7 @@ for k in 1:15
     accuracyk = mean(yPredictionsk .== test_Y)
     println("The loofCV accuracy of $(k)NN is $(accuracyk)")
 end
+
+model = svmtrain(train_X, train_Y)
+ŷ, decision_values = svmpredict(model, test_X)
+@printf "SVM Accuracy: %.2f%%\n" mean(ŷ .== test_Y) * 100

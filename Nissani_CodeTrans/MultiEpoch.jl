@@ -57,19 +57,20 @@ function hyperplane_additional_shift(training_set, w, θ, ϕ, Ω)
 end
 
 function MultiEpoch(training_set, nmr_training_batches::Int64, d::Int64,
-                    size_training_batch::Int64, nmr_epochs::Int64, nmr_hyp::Int64=8,
-                    Ω::Float64=2,  σ::Float64=0.8, μᵉmode::Float64=0.0, μᵉpar::Float64=4.0, 
-                    E_start::Int64=10, R_start::Int64=20, initial_orientation="random")
+                    size_training_batch::Int64, nmr_epochs::Int64, nmr_hyp::Int64=3,
+                    Ω::Float64=4.0,  σ::Float64=0.8, μᵉmode::Float64=0.0, μᵉpar::Float64=6.4, 
+                    E_start::Int64=50, R_start::Int64=100, initial_orientation="random")
 
     nr_neurons = d*nmr_hyp
     θshift = 1
     θspacing = Ω/(nmr_hyp + 1)
-    ϵ = 2*σ
-    α = 0.5
-    ϕ = 2.0
+    ϵ = 0.002*σ
+    α = 0.05
+    ϕ = 2.0*σ
 
     w_N, θ = hyperplane_inicialization(d, nmr_hyp, initial_orientation, Ω, θshift)
-
+    println(w_N)
+    println(θ)
     #Initialize cumulative weights c1 and c2 (for weighted average to define the mean)
     c1 = zeros(nr_neurons, 1)
     c2 = zeros(nr_neurons, 1)
@@ -93,8 +94,8 @@ function MultiEpoch(training_set, nmr_training_batches::Int64, d::Int64,
             for k in 1:nr_neurons
                 #println("w_N: ", w_N[:, k])
                 #println("theta: ", θ[k])
-                (w_N[:, k], θ[k], μ₁[:, k], μ₂[:, k], c1[k], c2[k], tₙ[k]) = NeuronLearningCycle(training_set[j, :],w_N[:, k], θ[k], μ₁[:, k], μ₂[:, k], c1[k], c2[k], tₙ[k], ϕ, ϵ, α,  μᵉmode, μᵉpar, R_start, E_start)
-                (wx_N[k], y_N[k]) = NeuronActivity(training_set[j, :], w_N[:, k], θ[k])
+                (w_N[:, k], θ[k], μ₁[:, k], μ₂[:, k], c1[k], c2[k], tₙ[k]) = NeuronLearningCycle(training_set[:, j], w_N[:, k], θ[k], μ₁[:, k], μ₂[:, k], c1[k], c2[k], tₙ[k], ϕ, ϵ, α,  μᵉmode, μᵉpar, R_start, E_start)
+                (wx_N[k], y_N[k]) = NeuronActivity(training_set[:, j], w_N[:, k], θ[k])
                 if count(x -> (isnan(x)), w_N) > 0
                     println("Failed at neuron:")
                     println(k)
