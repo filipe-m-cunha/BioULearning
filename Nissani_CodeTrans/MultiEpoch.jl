@@ -59,18 +59,18 @@ end
 function MultiEpoch(training_set, nmr_training_batches::Int64, d::Int64,
                     size_training_batch::Int64, nmr_epochs::Int64, nmr_hyp::Int64=3,
                     Ω::Float64=4.0,  σ::Float64=0.8, μᵉmode::Float64=0.0, μᵉpar::Float64=6.4, 
-                    E_start::Int64=50, R_start::Int64=100, initial_orientation="random")
+                    E_start::Int64=100, R_start::Int64=150, initial_orientation="random")
 
     nr_neurons = d*nmr_hyp
     θshift = 1
     θspacing = Ω/(nmr_hyp + 1)
-    ϵ = 0.002*σ
+    ϵ = 0.03*σ
     α = 0.05
     ϕ = 2.0*σ
 
     w_N, θ = hyperplane_inicialization(d, nmr_hyp, initial_orientation, Ω, θshift)
-    println(w_N)
-    println(θ)
+    #println(w_N)
+    #println(θ)
     #Initialize cumulative weights c1 and c2 (for weighted average to define the mean)
     c1 = zeros(nr_neurons, 1)
     c2 = zeros(nr_neurons, 1)
