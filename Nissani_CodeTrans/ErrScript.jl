@@ -22,7 +22,7 @@ function softmax(a)
 end
 
 @time begin
-    epoch_nr = 10000;
+    epoch_nr = 100000;
     nmr_training_batches = 1
     test_batch_size = 10
     train_batch_size = 128

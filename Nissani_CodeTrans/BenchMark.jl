@@ -79,6 +79,8 @@ end
 
 iris = dataset("datasets", "iris"); 
 features = collect(Matrix(iris[:, 1:4])');
+
+
 @time begin
     result = kmeans(features, 3);
 end
