@@ -9,6 +9,9 @@ using Distributed;
 using SharedArrays;
 using LIBSVM;
 using Printf;
+using Clustering;
+using RDatasets 
+using Plots;
 
 X, Y = MLDataUtils.load_iris()
 Xs, Ys = shuffleobs((X, Y))
@@ -62,11 +65,41 @@ end
 
 
 for k in 1:15
-    yPredictionsk = [assign_labels(train_X, test_X, train_Y, k, i) for i in 1:size(test_X, 2)]
-    accuracyk = mean(yPredictionsk .== test_Y)
-    println("The loofCV accuracy of $(k)NN is $(accuracyk)")
+    @time begin
+        yPredictionsk = [assign_labels(train_X, test_X, train_Y, k, i) for i in 1:size(test_X, 2)]
+        accuracyk = mean(yPredictionsk .== test_Y)
+        println("The loofCV accuracy of $(k)NN is $(accuracyk)")
+    end
+end
+@time begin
+    model = svmtrain(train_X, train_Y)
+    ŷ, decision_values = svmpredict(model, test_X)
+    @printf "SVM Accuracy: %.2f%%\n" mean(ŷ .== test_Y) * 100
 end
 
-model = svmtrain(train_X, train_Y)
-ŷ, decision_values = svmpredict(model, test_X)
-@printf "SVM Accuracy: %.2f%%\n" mean(ŷ .== test_Y) * 100
+iris = dataset("datasets", "iris"); 
+features = collect(Matrix(iris[:, 1:4])');
+@time begin
+    result = kmeans(features, 3);
+end
+p1 = scatter(iris.PetalLength, iris.PetalWidth, 
+        marker_z = result.assignments, 
+        color =:blue, legend = false)
+
+p2 = scatter(iris.PetalLength, iris.PetalWidth, marker_z = Ysi, color =:black, legend = true)
+
+plot(p1, p2)
+
+act_results = iris[:, 5]
+res = zeros(size(act_results)[1])
+for ys in 1:size(act_results)[1]
+    if act_results[ys] == "virginica"
+        res[ys] = 1
+    elseif act_results[ys] == "setosa"
+        res[ys] = 2
+    else
+        res[ys] = 3
+    end
+end
+
+@printf "K-Means Accuracy: %.2f%%\n" mean(res .== result.assignments) * 100
