@@ -14,7 +14,7 @@ train_batch_size = 150
 d = 4
 hyp_nmr = 2
 μᵉmode = 0.0
-μᵉpar = 6.4
+μᵉpar = 4
 
 #Parameters to evaluate
 αval = [0.0005, 0.001, 0.005, 0.01, 0.05, 0.1]

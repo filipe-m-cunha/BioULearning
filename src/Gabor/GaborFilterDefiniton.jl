@@ -19,7 +19,7 @@ function randMNISTgaborfilterBayesOpt(n, λrange, ψupperbound, σrange, γrange
     w .* amplitude / sum(abs.(w))
 end
 
-function set_connectivity_gabor!(net, inputsize, outputsize, patchsize;
+function set_connectivity_gabor!(net, inputsize, outputsize, patchsize,
     λrange = [patchsize/4,2*patchsize], 
     ψupperbound = 2π,
     σrange = [patchsize/8,patchsize], 
@@ -36,5 +36,3 @@ function set_connectivity_gabor!(net, inputsize, outputsize, patchsize;
     end
     net.weights[1:hiddensize * inputsize] = weights[:]
 end
-
-export set_connectivity_gabor!
