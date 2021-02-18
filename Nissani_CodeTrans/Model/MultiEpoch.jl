@@ -38,7 +38,7 @@ end
 
 function hyperplane_additional_shift(training_set, w, θ, ϕ, Ω)
 
-    indices = rand(1:size(training_set)[1])
+    indices = rand(1:size(training_set)[1])[1:Int(round(size(training_set)[1]*0.05))]
     close = zeros(size(w)[2])
     for i in 1:size(w)[2]
         for j in indices
@@ -58,16 +58,17 @@ end
 
 function MultiEpoch(training_set, nmr_training_batches::Int64, d::Int64,
                     size_training_batch::Int64, nmr_epochs::Int64, nmr_hyp::Int64=3,
-                    Ω::Float64=4.0,  σ::Float64=0.8, μᵉmode::Float64=0.0, μᵉpar::Float64=6.4, 
+                    Ω::Float64=4.0, ϵ_prime::Float64=0.003, α_prime::Float64=0.005,
+                    ϕ_prime::Float64=2.0, σ::Float64=0.8, μᵉmode::Float64=0.0, μᵉpar::Float64=6.4, 
                     E_start::Int64=100, R_start::Int64=150, initial_orientation="random", vary=1)
 
     nr_neurons = d*nmr_hyp
     θshift = 1
     θspacing = Ω/(nmr_hyp + 1)
 
-    ϵ = 0.003*σ
-    α = 0.005
-    ϕ = 2.0*σ
+    ϵ = ϵ_prime*σ
+    α = α_prime*σ
+    ϕ = ϕ_prime*σ
     
     ϵvar = exp(log(0.1228)/nmr_training_batches*nmr_epochs)
     αvar = exp(log(0.5604)/nmr_training_batches*nmr_epochs)
@@ -112,19 +113,19 @@ function MultiEpoch(training_set, nmr_training_batches::Int64, d::Int64,
                 (wx_N[k], y_N[k]) = NeuronActivity(training_set[:, j], w_N[:, k], θ[k])
 
                 if count(x -> (isnan(x)), w_N) > 0
-                    println("Failed at neuron:")
-                    println(k)
-                    println("x: ", training_set[:, j])
+                    #println("Failed at neuron:")
+                    #println(k)
+                    #println("x: ", training_set[:, j])
                     #println("With values:")
-                    println("w_N: ", w_N[:, k])
+                    #println("w_N: ", w_N[:, k])
                     #println("theta: ", θ[k])
                     break
                 end
             end
             
             if count(x -> (isnan(x)), w_N) > 0
-                println("Failed at ss: ")
-                println(ss)
+                #println("Failed at ss: ")
+                #println(ss)
                 break
             end
         end
