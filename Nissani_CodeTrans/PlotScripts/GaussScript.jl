@@ -11,8 +11,7 @@ using LinearAlgebra;
 using JLD;
 using Cairo;
 
-include("MultiEpoch.jl")
-include("MultiEpoch.jl")
+include("../Model/MultiEpoch.jl")
 
 #=Requires notebook to be run (Gulbenkian.ijulia)
 @manipulate for xn = -10:0.1:1, yn = -10:0.1:1
