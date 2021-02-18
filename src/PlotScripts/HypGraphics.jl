@@ -11,7 +11,7 @@ function plot_hyperparameter_variation(parameter, min::Float64, max::Float64, ni
     X, Y = MLDataUtils.load_iris()
     Xs, Ys = shuffleobs((X, Y))
 
-    epoch_nr = 100;
+    epoch_nr = 20;
     nmr_training_batches = 1
     train_batch_size = 150
     d = 4
@@ -20,7 +20,7 @@ function plot_hyperparameter_variation(parameter, min::Float64, max::Float64, ni
     μᵉpar = 4.0
 
     #Parameters to evaluate
-    α = 0.012
+    α = 0.0012
     ϵ = 0.00005
     ϕ = 2.0
     Ω = 5.0
@@ -99,7 +99,7 @@ function plot_hyperparameter_variation(parameter, min::Float64, max::Float64, ni
                 acc_i = get_model_acc(Xs, Ys, w_N, θ)
                 acc[i] = acc_i
             end
-            global acc_val[j] = maximum(acc)
+            global acc_val[j] = mean(acc)
         end
     else
         @assert false "parameter has to be either alpha, epsilon, phi, omega or sigma!"
@@ -113,9 +113,9 @@ function plot_hyperparameter_variation(parameter, min::Float64, max::Float64, ni
     ylabel!("Accuracy")
 
     if local_save
-        savefig(plotd,"$(parameter)_plot.png")
+        savefig(plotd,"$(parameter)_1plot.png")
     end
 end
 
-plot_hyperparameter_variation("α", 0.0001, 0.02, 1000)
+plot_hyperparameter_variation("omega", 0.1, 10.0, 100)
 

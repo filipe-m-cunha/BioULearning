@@ -1,3 +1,5 @@
+
+#Given the necessary parameters, returns a Gabor filter
 function gaborfilter(n, λ, θ, ψ, σ, γ)
     w = zeros(n, n)
     for x in 1:n
@@ -10,7 +12,8 @@ function gaborfilter(n, λ, θ, ψ, σ, γ)
     w
 end
 
-function randMNISTgaborfilterBayesOpt(n, λrange, ψupperbound, σrange, γrange, amplitude)
+#Given the parameters, returns a normalized random Gabor Filter
+function randgabor(n, λrange, ψupperbound, σrange, γrange, amplitude)
     w = gaborfilter(n, λrange[1] + (λrange[2] - λrange[1]) * rand(),
                     2π*rand(),
                     ψupperbound * rand(),
@@ -19,6 +22,8 @@ function randMNISTgaborfilterBayesOpt(n, λrange, ψupperbound, σrange, γrange
     w .* amplitude / sum(abs.(w))
 end
 
+#Sets the connectivity of a particular network (classifier) with 
+#the previously defined random Gabor filter
 function set_connectivity_gabor!(net, inputsize, outputsize, patchsize,
     λrange = [patchsize/4,2*patchsize], 
     ψupperbound = 2π,
