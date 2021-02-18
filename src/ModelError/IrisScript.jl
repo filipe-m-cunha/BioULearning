@@ -8,7 +8,7 @@ X, Y = MLDataUtils.load_iris()
 Xs, Ys = shuffleobs((X, Y))
 
 #Fixed Parameters
-epoch_nr = 1000;
+epoch_nr = 100;
 nmr_training_batches = 1
 train_batch_size = 150
 d = 4
@@ -30,7 +30,9 @@ best = 0.0
 best_val = zeros(9)
 #Run model for the parameters to evaluate
 for α in αval
+    println("Alpha at: ", α)
     for ϵ in ϵval
+        println("Epsilon at: ", ϵ)
         for ϕ in ϕval
             for Ω in Ωval
                 for σ in σval
