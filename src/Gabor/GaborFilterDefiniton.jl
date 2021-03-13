@@ -1,4 +1,6 @@
 
+#include("Convolutions.jl")
+
 #Given the necessary parameters, returns a Gabor filter
 function gaborfilter(n, λ, θ, ψ, σ, γ)
     w = zeros(n, n)
