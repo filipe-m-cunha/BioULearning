@@ -10,7 +10,7 @@ function MultiEpoch(training_set, nmr_training_batches::Int64, d::Int64,
     θshift = 1
     θspacing = Ω/(nmr_hyp + 1)
     ϵ = 2*σ
-    α = 0.5
+    α = 1.0
     ϕ = 2.0
 
     w_N = zeros(d, nr_neurons)

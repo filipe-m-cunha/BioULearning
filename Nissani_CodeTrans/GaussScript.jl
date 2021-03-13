@@ -14,7 +14,7 @@ using Cairo;
 include("MultiEpoch.jl")
 include("MultiEpoch.jl")
 
-#=Requires notebook to be run (Gulbenkian.ijulia)
+#=Requires notebook to be run (BioUnsuper.ijulia)
 @manipulate for xn = -10:0.1:1, yn = -10:0.1:1
 
     #Create the Gaussian distributions
