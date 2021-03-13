@@ -22,7 +22,7 @@ function randgabor(n, λrange, ψupperbound, σrange, γrange, amplitude)
     w .* amplitude / sum(abs.(w))
 end
 
-function establishConnectionGabor(dataset, nGabor, n, λrange, ψupperbound, σrange, γrange, amplitude, connectionMode):
+function establishConnectionGabor(dataset, nGabor, n, λrange, ψupperbound, σrange, γrange, amplitude, connectionMode)
     #Inicialize empty Gabor filter bank
     gaborBank = Matrix{Float64}[]
     featVectors = Matrix{Float64}[]
