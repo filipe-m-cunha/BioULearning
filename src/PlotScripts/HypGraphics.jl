@@ -11,7 +11,7 @@ function plot_hyperparameter_variation(parameter, min::Float64, max::Float64, ni
     X, Y = MLDataUtils.load_iris()
     Xs, Ys = shuffleobs((X, Y))
 
-    epoch_nr = 20;
+    epoch_nr = 10;
     nmr_training_batches = 1
     train_batch_size = 150
     d = 4
