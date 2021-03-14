@@ -1,8 +1,6 @@
 using PaddedViews
-using PyCall
+using Images
 using Infinity
-
-comping = pyimport(comping)
 
 
 #Computes final image size
@@ -17,7 +15,7 @@ function calcFinalSize(ninput::Int, stride::Int, gabSize::Int, padding::String)
         @assert false "padding only supported to be none or same"
     end
 
-    return floor((ninput + 2*p - gabSize)/(stride)) + 1
+    return Int(floor((ninput + 2*p - gabSize)/(stride)) + 1)
 end
 
 #Adds padding to an image
@@ -28,21 +26,21 @@ function addPadding(image, padding)
     elseif (padding == "zeros")
         image = PaddedView(0, image, (size(image)[1], size(image)[1]))
     else
-        @assert false "padding only supported to be none or same"
+        @assert false "padding only supported to be none or one or zeros"
     end
 
     return image
 end
 
 #Perfoms winnerTakesAll convolution, given a gabor filter bank and an image
-function winnerConv(image, gaborBank, stride::Int=1, padding::String="full")
+function winnerConv(image, gaborBank, stride::Int=1, padding::String="zeros")
 
     sizeBank, filter_r, filter_c = size(gaborBank)
-
+    
     if (filter_r != filter_c)
         throw(DomainError(gaborBank, "Filter row and column should be the same"))
     end
-
+    input_r, input_c = size(image)
     outSize = calcFinalSize(input_r, stride, filter_r, padding)
     result = zeros(outSize, outSize)
     image = addPadding(image, padding)
@@ -52,12 +50,12 @@ function winnerConv(image, gaborBank, stride::Int=1, padding::String="full")
         start = 0
     end
 
-    for i in 1:input_r
-        for j in 1:input_c
+    for i in 1:(input_r - size(gaborBank)[2])
+        for j in 1:(input_c - size(gaborBank)[2])
             measures = [0, -∞]
             imageToCompare = image[i+start: i+filter_r, j+start:j+filter_c]
             for k in 1:sizeBank
-                val = comping.similarity.SSIM().compare(imageToCompare, gaborBank[k, :, :])
+                val = assess_ssim(imageToCompare, gaborBank[k, :, :])
                 if val > measures[2]
                     measures = [k, val]
                 end

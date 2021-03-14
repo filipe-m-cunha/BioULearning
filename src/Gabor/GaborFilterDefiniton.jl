@@ -1,5 +1,5 @@
 
-#include("Convolutions.jl")
+include("Convolutions.jl")
 
 #Given the necessary parameters, returns a Gabor filter
 function gaborfilter(n, λ, θ, ψ, σ, γ)
@@ -26,19 +26,22 @@ end
 
 function establishConnectionGabor(dataset, nGabor, n, λrange, ψupperbound, σrange, γrange, amplitude, connectionMode)
     #Inicialize empty Gabor filter bank
-    gaborBank = Matrix{Float64}[]
-    featVectors = Matrix{Float64}[]
+    gaborBank = zeros(nGabor + 1, n, n)
+    finalDim = calcFinalSize(size(dataset)[2], 1, n, "zeros")
+    featVectors = zeros(size(dataset)[3], finalDim, finalDim)
     #Create new filters and push to bank
     for i in 1:nGabor
-        push!(gaborBank, randgabor(n, λrange, ψupperbound, σrange, γrange, amplitude))
+        gaborBank[i, :, :] = randgabor(n, λrange, ψupperbound, σrange, γrange, amplitude)
     end
-
-    for j in 1:size(dataset)[2]
+    gaborBank[nGabor + 1, :, :] =  dataset[1].*ones(n, n)
+    println(size(dataset))
+    for j in 1:size(dataset)[3]
         #Perform convolution operation
         if (connectionMode == "winnerTakesAll")
-            push!(featVectors, winnerConv(j, gaborBank))
+            newImage= winnerConv(dataset[:, :, j], gaborBank)
+            featVectors[j, :, :] = newImage
         elseif (connectionMode == "avgDown")
-            push!(featVectors, avgConv(j, gaborBank))
+            featVectors[j, :, :] = avgConv(dataset[:, :, j], gaborBank)
         end
     end
 

@@ -4,6 +4,7 @@ using Printf
 
 include("../Model/MultiEpoch.jl")
 include("ErrFunction.jl")
+include("../Gabor/GaborFilterDefiniton.jl")
 
 train_x, train_y = MNIST.traindata()
 test_x,  test_y  = MNIST.testdata()
@@ -11,9 +12,11 @@ test_x,  test_y  = MNIST.testdata()
 X_prime = train_x[:, :, 1:1000];
 Y= train_y[1:1000];
 
+Xtemp = establishConnectionGabor(X_prime, 4, 4, [4.6, 10.3], 4.8, [3.8, 5.] , 7. , 2.1, "winnerTakesAll")
+#=
 X = zeros(784, 1000)
 for i in 1:1000
-    X[:, i] = reshape(X_prime[:, :, i]./255, 784, 1)
+    X[:, i] = reshape(Xtemp[:, :, i]./255, 784, 1)
 end
 
 #Fixed Parameters
@@ -45,3 +48,4 @@ vary = 0
     acc = get_model_acc(X, Y, w_N, θ)
     @printf "Model Accuracy: %.2f%%\n" acc * 100
 end
+=#
