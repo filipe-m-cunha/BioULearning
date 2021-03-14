@@ -34,7 +34,6 @@ function establishConnectionGabor(dataset, nGabor, n, λrange, ψupperbound, σr
         gaborBank[i, :, :] = randgabor(n, λrange, ψupperbound, σrange, γrange, amplitude)
     end
     gaborBank[nGabor + 1, :, :] =  dataset[1].*ones(n, n)
-    println(size(dataset))
     for j in 1:size(dataset)[3]
         #Perform convolution operation
         if (connectionMode == "winnerTakesAll")
