@@ -33,7 +33,7 @@ function addPadding(image, padding)
 end
 
 #Perfoms winnerTakesAll convolution, given a gabor filter bank and an image
-function winnerConv(image, gaborBank, stride::Int=1, padding::String="zeros")
+function winnerConv(image, gaborBank, stride::Int=2, padding::String="zeros")
 
     sizeBank, filter_r, filter_c = size(gaborBank)
     
@@ -50,8 +50,8 @@ function winnerConv(image, gaborBank, stride::Int=1, padding::String="zeros")
         start = 0
     end
 
-    for i in 1:(input_r - size(gaborBank)[2])
-        for j in 1:(input_c - size(gaborBank)[2])
+    for i in 1:stride:(input_r - size(gaborBank)[2])
+        for j in 1:stride:(input_c - size(gaborBank)[2])
             measures = [0, -∞]
             imageToCompare = image[i+start: i+filter_r, j+start:j+filter_c]
             for k in 1:sizeBank
@@ -60,7 +60,7 @@ function winnerConv(image, gaborBank, stride::Int=1, padding::String="zeros")
                     measures = [k, val]
                 end
             end
-            result[i, j] = measures[1]
+            result[i÷stride + 1, j÷stride + 1] = measures[1]
         end
     end
 
@@ -86,8 +86,8 @@ function avgConv(image, gaborBank, stride::Int=1, padding::String="full")
         start = 0
     end
 
-    for i in 1:input_r
-        for j in 1:input_c
+    for i in 1:stride:input_r
+        for j in 1:stride:input_c
             measures = zeros(sizeBank)
             imageToCompare = image[i+start: i+filter_r, j+start:j+filter_c]
             for k in 1:sizeBank

@@ -56,7 +56,7 @@ function hyperplane_additional_shift(training_set, w, θ, ϕ, Ω)
     return w, θ
 end
 
-function MultiEpoch(training_set, Y, nmr_training_batches::Int64, d::Int64,
+function MultiEpoch(training_set, X, Y, nmr_training_batches::Int64, d::Int64,
                     size_training_batch::Int64, nmr_epochs::Int64, nmr_hyp::Int64=3,
                     Ω::Float64=4.0, ϵ_prime::Float64=0.003, α_prime::Float64=0.005,
                     ϕ_prime::Float64=2.0, σ::Float64=0.8, μᵉmode::Float64=0.0, μᵉpar::Float64=6.4, 
@@ -101,7 +101,7 @@ function MultiEpoch(training_set, Y, nmr_training_batches::Int64, d::Int64,
 
         end
 
-        acc = get_model_acc(training_set, Y, w_N, θ)
+        acc = get_model_acc(X, Y, w_N, θ)
         @printf "Epoch: %.2f%%\n" i
         @printf "Model Accuracy: %.2f%%\n" acc * 100
 
