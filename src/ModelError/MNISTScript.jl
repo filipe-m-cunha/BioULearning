@@ -9,20 +9,20 @@ include("../Gabor/GaborFilterDefiniton.jl")
 train_x, train_y = MNIST.traindata()
 test_x,  test_y  = MNIST.testdata()
 
-X_prime = train_x;
-Y= train_y;
+X_prime = train_x[:, :, 1:5000];
+Y= train_y[1:5000];
 
 Xtemp = establishConnectionGabor(X_prime, 4, 4, [4.6, 10.3], 4.8, [3.8, 5.] , 7. , 2.1, "winnerTakesAll")
 
-X = zeros(729, 60000)
-for i in 1:60000
+X = zeros(729, 15000)
+for i in 1:5000
     X[:, i] = reshape(Xtemp[i, :, :], 729, 1)
 end
 
 #Fixed Parameters
-epoch_nr = 5;
+epoch_nr = 10;
 nmr_training_batches = 1
-train_batch_size = 60000
+train_batch_size = 5000
 d = 729
 hyp_nmr = 2
 μᵉmode = 0.0
