@@ -54,9 +54,6 @@ function NeuronLearningCycle(x::Array{Float64, 1}, w::Array{Float64,1}, θ::Floa
         tₙ = tₙ + 1
 
     end
-    if (wx > θ + ϕ) | (wx < θ - ϕ)
-        θ = θ
-    end
 
     # μ estimation process
     if tₙ ≥ E_start
@@ -67,7 +64,7 @@ function NeuronLearningCycle(x::Array{Float64, 1}, w::Array{Float64,1}, θ::Floa
                     #println("Here1")
                     #If sample is in original half-space
                     if wx < θ
-                        μ₂ = x - 2*abs(wx - θ)*w
+                        μ₂ = x + 2*abs(wx - θ)*w
                     #If sample is not in original half-space
                     else
                         μ₁ = x - 2*abs(wx - θ)*w
