@@ -1,6 +1,8 @@
 using MLDataUtils;
 using Statistics;
 using LIBSVM;
+using LinearAlgebra;
+using Printf;
 
 #Loading the datasets
 

@@ -1,6 +1,6 @@
 using Printf;
 using Clustering;
-using RDatasets 
+using MLDataUtils; 
 using Plots;
 using Statistics;
 
