@@ -1,7 +1,6 @@
 using Printf;
 using Clustering;
 using MLDataUtils; 
-using Plots;
 using Statistics;
 
 X, Y = MLDataUtils.load_iris()
