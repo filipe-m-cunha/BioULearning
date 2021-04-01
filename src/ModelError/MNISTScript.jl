@@ -9,20 +9,27 @@ include("../Gabor/GaborFilterDefiniton.jl")
 train_x, train_y = MNIST.traindata()
 test_x,  test_y  = MNIST.testdata()
 
-X_prime = cat(train_x, test_x; dims = 3)[:, :, 1:10000]
-Y= vcat(train_y, test_y)[1:10000]
+X_prime = cat(train_x, test_x; dims = 3)
+Y_train= vcat(train_y, test_y)[1:60000]
+Y_test = vcat(train_y, test_y)[60001:70000]
 
-Xtemp = establishConnectionGabor(X_prime, 4, 4, [4.6, 10.3], 4.8, [3.8, 5.] , 7. , 2.1, "winnerTakesAll")
+Xtemp = establishConnectionGabor(X_prime[:, :, 1:60000], 10, 4, [4.6, 10.3], 4.8, [3.8, 5.] , 7. , 2.1, "winnerTakesAll")
+Xtest = establishConnectionGabor(X_prime[:, :, 60001:70000], 10, 4, [4.6, 10.3], 4.8, [3.8, 5.] , 7. , 2.1, "winnerTakesAll")
 
-X = zeros(196, 10000)
-for i in 1:10000
+X = zeros(196, 60000)
+for i in 1:60000
     X[:, i] = reshape(Xtemp[i, :, :], 196, 1)
+end
+
+X_test = zeros(196, 10000)
+for i in 60001:70000
+    X_test[:, i] = reshape(Xtest[i, :, :], 196, 1)
 end
 
 #Fixed Parameters
 epoch_nr = 10;
 nmr_training_batches = 1
-train_batch_size = 1000
+train_batch_size = 60000
 d = 196
 hyp_nmr = 2
 μᵉmode = 5.0
@@ -39,12 +46,12 @@ vary = 0
 
 @time begin
     println("Starting up...")
-    (w_N, wx_N, θ, μ₁, μ₂, c1, c2, y_N) = MultiEpoch(X[:, 1:1000], X, Y, nmr_training_batches, d, 
+    (w_N, wx_N, θ, μ₁, μ₂, c1, c2, y_N) = MultiEpoch(X[:, 1:60000], X, Y, nmr_training_batches, d, 
                                                     train_batch_size, epoch_nr,
                                                     hyp_nmr, Ω, ϵ, α, ϕ, σ, μᵉmode,
                                                     μᵉpar, E_start, Int(R_start*E_start),
                                                     initial_orientation, vary);
     println("Finished")
-    acc = get_model_acc(X, Y, w_N, θ)
+    acc = get_model_acc(X_test, Y_test, w_N, θ)
     @printf "Model Accuracy: %.2f%%\n" acc * 100
 end
