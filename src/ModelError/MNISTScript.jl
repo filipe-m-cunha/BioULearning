@@ -23,7 +23,7 @@ end
 
 X_test = zeros(196, 10000)
 for i in 60001:70000
-    X_test[:, i] = reshape(Xtest[i, :, :], 196, 1)
+    X_test[:, i-60000] = reshape(Xtest[i-60000, :, :], 196, 1)
 end
 
 #Fixed Parameters
