@@ -2,6 +2,7 @@ using MLDataUtils;
 using LinearAlgebra;
 using JLD;
 using Printf;
+using StatsBase;
 
 #Given three input parameters, a point x, a Matrix
 #wX and a vector θ, these last two describing the hyperplanes,
@@ -85,3 +86,51 @@ function get_model_acc(X, Y, wX, θ)
 
     return accuracy
 end
+
+function label(X, Y, wX, θ, num)
+    
+    results = placeDataset(X, wX, θ)
+    uniqueR = []
+    labels = []
+    count = 0
+    for j in 1:length(results)
+        if results[j] in uniqueR
+            pos = findall(x-> x==results[j], uniqueR)
+            if length(label[pos])==num
+                label[pos] = int(mode(label[pos]))
+            elseif  length(label[i])<num
+                label[pos]+=[Y[j]]
+            end
+        else
+            uniqueR += [results[j]]
+            count += 1
+        end
+    end
+    for j in labels
+        labels[j] = mode(labels[j])
+    end
+    return uniqueR, labels, count
+end
+
+function compAcc(Xtrain, Ytrain, Xtest, Ytest, wX, θ, num)
+
+    right = 0
+    wrong = 0
+    unlabeled = 0
+    uniqueR, labels, count = label(Xtrain, Ytrain, wX, θ, num)
+    results = placeDataset(Xtest, wX, θ)
+    for j in 1:length(results)
+        if results[j] in uniqueR
+            pos = findall(x-> x==results[j], uniqueR)
+            if labels[pos] == Ytest[j]
+                right += 1
+            else
+                wrong += 1
+            end
+        else
+            unlabeled += 1
+        end
+    end
+    return (right/(right+wrong)), unlabeled, count
+end
+
