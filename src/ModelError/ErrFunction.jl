@@ -87,27 +87,46 @@ function get_model_acc(X, Y, wX, θ)
     return accuracy
 end
 
+
+function findRow(data, row)
+    found = false
+    i = 0
+    while i <size(data)[2] && !found
+        if transpose(data[:, 1]) == row 
+            found = true
+        else 
+            i = i+1
+        end
+    end
+    if found
+        return i
+    else
+        return -1
+
 function label(X, Y, wX, θ, num)
     
     results = placeDataset(X, wX, θ)
-    uniqueR = []
-    labels = []
+    uniqueR = results[1, :]
+    labels = zeros(num)
+    labels[1] = Y[1]
     count = 0
-    for j in 1:length(results)
-        if results[j] in uniqueR
-            pos = findall(x-> x==results[j], uniqueR)
-            if length(label[pos])==num
-                label[pos] = int(mode(label[pos]))
-            elseif  length(label[i])<num
-                label[pos]+=[Y[j]]
+    for j in 2:size(results)[1]
+        if findRow(uniqueR, results[:, j]) != -1
+            pos = findRow(uniqueR, results[:, j])
+            if length(findall(x -> x!= 0, labels[:, pos]))==num
+                labels[num, pos] = int(mode(labels[:, pos]))
+            elseif length(findall(x -> x!= 0, labels[:, pos]))
+                labels[length(findall(x -> x!= 0, labels[:, pos])) + 1, pos]=Y[j]
             end
         else
-            uniqueR += [results[j]]
+            uniqueR = hcat(uniqueR, results[:, j])
+            labels = hcat(lables, zeros(num))
+            labels[1, end] = Y[j]
             count += 1
         end
     end
-    for j in labels
-        labels[j] = mode(labels[j])
+    for j in 1:size(labels)[2]
+        labels[num, j] = int(mode(labels[j]))
     end
     return uniqueR, labels, count
 end
@@ -119,10 +138,10 @@ function compAcc(Xtrain, Ytrain, Xtest, Ytest, wX, θ, num)
     unlabeled = 0
     uniqueR, labels, count = label(Xtrain, Ytrain, wX, θ, num)
     results = placeDataset(Xtest, wX, θ)
-    for j in 1:length(results)
-        if results[j] in uniqueR
-            pos = findall(x-> x==results[j], uniqueR)
-            if labels[pos] == Ytest[j]
+    for j in 1:size(results)[2]
+        if findRow(uniqueR, results[:, j]) != -1
+            pos = findRow(uniqueR, results[:, j])
+            if labels[:, pos] == Ytest[j]
                 right += 1
             else
                 wrong += 1
