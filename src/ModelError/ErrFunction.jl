@@ -102,6 +102,8 @@ function findRow(data, row)
         return i
     else
         return -1
+    end
+end
 
 function label(X, Y, wX, θ, num)
     
