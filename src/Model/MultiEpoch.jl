@@ -112,20 +112,8 @@ function MultiEpoch(training_set, Y, Xtest, Ytest, nmr_training_batches::Int64, 
 
             for k in 1:nr_neurons
 
-                #println("w_N: ", w_N[:, k])
-                #println("theta: ", θ[k])
                 (w_N[:, k], θ[k], μ₁[:, k], μ₂[:, k], c1[k], c2[k], tₙ[k]) = NeuronLearningCycle(training_set[:, j], w_N[:, k], θ[k], μ₁[:, k], μ₂[:, k], c1[k], c2[k], tₙ[k], ϕ, ϵ, α,  μᵉmode, μᵉpar, R_start, E_start)
                 (wx_N[k], y_N[k]) = NeuronActivity(training_set[:, j], w_N[:, k], θ[k])
-
-                if count(x -> (isnan(x)), w_N) > 0
-                    #println("Failed at neuron:")
-                    #println(k)
-                    #println("x: ", training_set[:, j])
-                    #println("With values:")
-                    #println("w_N: ", w_N[:, k])
-                    #println("theta: ", θ[k])
-                    break
-                end
             end
             
             if count(x -> (isnan(x)), w_N) > 0
