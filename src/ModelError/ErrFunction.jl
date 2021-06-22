@@ -163,7 +163,7 @@ function label(X, Y, counter)
             end
         end
     end
-    return retY, uncertain
+    return retY, uncertain, unique
 end
 
 x = [1 -1 1; -1 1 -1; 1 -1 1; -1 1 -1; 1 1 1; -1 1 -1]
