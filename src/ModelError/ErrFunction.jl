@@ -87,71 +87,85 @@ function get_model_acc(X, Y, wX, θ)
     return accuracy
 end
 
-
-function findRow(data, row)
-    found = false
-    i = 0
-    while i <size(data)[2] && !found
-        if transpose(data[:, 1]) == row 
-            found = true
-        else 
+function equalVec(vec1, vec2)
+    if length(vec1) != length(vec2)
+        return false
+    else
+        found = false
+        i = 1
+        while !found && i<length(vec1)
+            if(vec1[i] != vec2[i])
+                found = true
+            end
             i = i+1
         end
+        return !found
     end
-    if found
-        return i
-    else
+end
+
+function findRow(data, row)
+    if(data == Any[])
         return -1
-    end
-end
-
-function label(X, Y, wX, θ, num)
-    
-    results = placeDataset(X, wX, θ)
-    uniqueR = results[1, :]
-    labels = zeros(num)
-    labels[1] = Y[1]
-    count = 0
-    for j in 2:size(results)[1]
-        if findRow(uniqueR, results[:, j]) != -1
-            pos = findRow(uniqueR, results[:, j])
-            if length(findall(x -> x!= 0, labels[:, pos]))==num
-                labels[num, pos] = int(mode(labels[:, pos]))
-            elseif length(findall(x -> x!= 0, labels[:, pos]))
-                labels[length(findall(x -> x!= 0, labels[:, pos])) + 1, pos]=Y[j]
-            end
-        else
-            uniqueR = hcat(uniqueR, results[:, j])
-            labels = hcat(lables, zeros(num))
-            labels[1, end] = Y[j]
-            count += 1
-        end
-    end
-    for j in 1:size(labels)[2]
-        labels[num, j] = int(mode(labels[j]))
-    end
-    return uniqueR, labels, count
-end
-
-function compAcc(Xtrain, Ytrain, Xtest, Ytest, wX, θ, num)
-
-    right = 0
-    wrong = 0
-    unlabeled = 0
-    uniqueR, labels, count = label(Xtrain, Ytrain, wX, θ, num)
-    results = placeDataset(Xtest, wX, θ)
-    for j in 1:size(results)[2]
-        if findRow(uniqueR, results[:, j]) != -1
-            pos = findRow(uniqueR, results[:, j])
-            if labels[:, pos] == Ytest[j]
-                right += 1
+    else
+        i = 1
+        found = false
+        while i<=length(data) && !found
+            if(equalVec(data[i], row))
+                found = true
             else
-                wrong += 1
+                i = i+1
             end
+        end
+        if found
+            return i
         else
-            unlabeled += 1
+            return -1
         end
     end
-    return (right/(right+wrong)), unlabeled, count
 end
 
+
+function label(X, Y, counter)
+
+    results = X
+    y = Any[]
+    z = Float64[]
+    unique = Any[]
+    for i in 1:size(results)[1]
+        j = findRow(unique, results[i, :])
+        if(j == -1)
+            push!(unique, results[i, :])
+            push!(z, 1)
+            yval = zeros(counter)
+            yval[1] = Y[i]
+            push!(y, yval)
+        else
+            if(z[j] < counter)
+                z[j] = z[j] + 1
+                y[i][z[j]] = Y[i]
+            end
+        end
+    end
+    retY = zeros(size(results)[1])
+    uncertain = 0
+    for k in 1:size(results)[1]
+        k1 = findRow(unique, results[k, :])
+        if( k1 == -1)
+            println("Error: Something wrong")
+            break
+        else
+            k2 = convert(Int64, z[k1])
+            if(k2 >= counter)
+                retY[k] = convert(Int64, mode(y[k1]))
+            else
+                retY[k] = -1
+                uncertain = uncertain + 1
+            end
+        end
+    end
+    return retY, uncertain
+end
+
+x = [1 -1 1; -1 1 -1; 1 -1 1; -1 1 -1; 1 1 1; -1 1 -1]
+y = [1; 2; 1; 2; 3; 1]
+retY, uncertain = label(x, y, 1)
