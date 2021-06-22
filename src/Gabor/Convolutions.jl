@@ -103,6 +103,15 @@ function avgConv(image, gaborBank, stride::Int=2, padding::String="full")
 end
             
 
-
+function inverseConv(gaborBank, x, dim1, dim2, stride)
+    xres = reshape(x, dim1[1], dim1[2])
+    xret = zeros(dim2[1], dim2[2])
+    for i in 1:stride:(dim2[1] - size(gaborBank)[2])
+        for j in:stride:(dim2[2]- size(gaborBank[2]))
+            xret[i:i + size(gaborBank[2]), j:j+size(gaborBank[2])] = gaborBank[xres[i,j]]
+        end
+    end
+    return xret
+end
 
 
