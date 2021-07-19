@@ -49,7 +49,7 @@ function establishConnectionGabor(dataset, nGabor, n, λrange, ψupperbound, σr
         end
     end
     println("Ended Convolutions")
-    return featVectors
+    return featVectors, gaborBank
 end
 
 
