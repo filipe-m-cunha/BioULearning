@@ -166,7 +166,21 @@ function label(X, Y, counter)
     return retY, uncertain, unique
 end
 
-
+function compAcc(training_set, Y, Xtest, Ytest, w_N, θ, per)
+    X = placeDataset(training_set, w_N, θ)
+    #X = training_set
+    retY, uncertain, unique = label(X, Y, per)
+    T = 0
+    F = 0
+    for i = 1:length(Y)
+        if(Y[i] == retY[i])
+            T += 1
+        else
+            F += 1
+        end
+    end
+    return (T/(T+F-uncertain)), uncertain, length(unique)
+end
 
 function findRow(data, row)
     if(data == Any[])
@@ -248,6 +262,7 @@ function labelUncer(X, wX, c1, c2, θ, Y, counter, percentage)
     return retY, uncertain, unique
 end
 
-x = [1 -1 1; -1 1 -1; 1 -1 1; -1 1 -1; 1 1 1; -1 1 -1]
-y = [1; 2; 1; 2; 3; 1]
-retY, uncertain = label(x, y, 1)
+#x = [1 -1 1; -1 1 -1; 1 -1 1; -1 1 -1; 1 1 1; -1 1 -1]
+#y = [1; 2; 1; 2; 3; 1]
+#retY, uncertain = label(x, y, 1)
+#acc = compAcc(x, y, 0, 0,0,0, 2)

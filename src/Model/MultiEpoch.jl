@@ -100,8 +100,8 @@ function MultiEpoch(training_set, Y, Xtest, Ytest, nmr_training_batches::Int64, 
             ϕ = ϕ*(ϕvar^(i-1))
 
         end
-
-        acc, unlabeled, count = compAcc(training_set, Y, Xtest, Ytest, w_N, θ, 10)
+        println(length(training_set))
+        acc, unlabeled, count = compAcc(training_set, Y, Xtest, Ytest, w_N, θ, 1)
         @printf "Epoch: %.2f%%\n" i
         @printf "Model Accuracy: %.2f%%\n" acc * 100
         @printf "Unlabeled: %.2f%%\n" unlabeled
@@ -116,11 +116,11 @@ function MultiEpoch(training_set, Y, Xtest, Ytest, nmr_training_batches::Int64, 
                 (wx_N[k], y_N[k]) = NeuronActivity(training_set[:, j], w_N[:, k], θ[k])
             end
             
-            if count(x -> (isnan(x)), w_N) > 0
+            #if count(x -> (isnan(x)), w_N) > 0
                 #println("Failed at ss: ")
                 #println(ss)
-                break
-            end
+                #break
+            #end
         end
     end
 
