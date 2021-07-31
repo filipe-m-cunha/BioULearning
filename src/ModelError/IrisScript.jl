@@ -1,8 +1,11 @@
 using MLDataUtils;
 using Printf;
+using Random;
 
 include("../Model/MultiEpoch.jl")
 include("ErrFunction.jl")
+
+Random.seed!(413)
 
 X, Y = MLDataUtils.load_iris()
 Xs, Ys1 = shuffleobs((X, Y))
@@ -80,7 +83,7 @@ epoch_nr = 100
 nmr_training_batches = 1
 train_batch_size = 150
 d = 4
-hyp_nmr = 4
+hyp_nmr = 7
 μᵉmode = 0.0
 μᵉpar = 6.4
 Ω = 10.0
@@ -93,14 +96,19 @@ R_start = 1.5
 initial_orientation = "random"
 vary = 0
 
-@time begin
-    println("Starting up...")
+#@time begin
+    #println("Starting up...")
     (w_N, wx_N, θ, μ₁, μ₂, c1, c2, y_N) = MultiEpoch(Xs, Ys, Xs, Ys, nmr_training_batches, d, 
                                                     train_batch_size, epoch_nr,
                                                     hyp_nmr, Ω, ϵ, α, ϕ, σ, μᵉmode,
                                                     μᵉpar, E_start, Int(R_start*E_start),
                                                     initial_orientation, vary);
-    println("Finished")
-    acc, unlabeled, count = compAcc(Xs, Ys, Xs, Ys, w_N, θ, 3)
-    @printf "Model Accuracy: %.2f%%\n" acc * 100
-end
+    #println("Finished")
+    #acc, unlabeled, count = compAcc(Xs, Ys, Xs, Ys, w_N, θ, 1)
+    #@printf "Model Accuracy: %.2f%%\n" acc * 100
+#end
+X1 = placeDataset(Xs, w_N, θ)
+X, unique, centroids, z = classSeparation(Xs, w_N, θ, 8)
+acc, uncertain = compAccC(Xs, w_N, θ, Ys, 8, 2)
+println(acc)
+

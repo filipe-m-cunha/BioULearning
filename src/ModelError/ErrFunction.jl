@@ -125,126 +125,53 @@ function findRow(data, row)
 end
 
 
-function label(X, Y, counter)
-
-    results = X
-    y = Any[]
-    z = Float64[]
-    unique = Any[]
-    for i in 1:size(results)[1]
-        j = findRow(unique, results[i, :])
-        if(j == -1)
-            push!(unique, results[i, :])
-            push!(z, 1)
-            yval = zeros(counter+1)
-            yval[1] = Y[i]
-            push!(y, yval)
-        else
-            if(z[j] < counter)
-                z[j] = z[j] + 1
-                y[j][convert(Int64, z[j])] = Y[i]
-            end
-        end
-    end
-    retY = zeros(size(results)[1])
-    uncertain = 0
-    for k in 1:size(results)[1]
-        k1 = findRow(unique, results[k, :])
-        if( k1 == -1)
-            println("Error: Something wrong")
-            break
-        else
-            k2 = convert(Int64, z[k1])
-            if(k2 >= counter)
-                retY[k] = convert(Int64, mode(y[k1]))
-            else
-                retY[k] = -1
-                uncertain = uncertain + 1
-            end
-        end
-    end
-    return retY, uncertain, unique
-end
-
-function compAcc(training_set, Y, Xtest, Ytest, w_N, θ, per)
-    #X = placeDataset(training_set, w_N, θ)
-    X = training_set
-    retY, uncertain, unique = label(X, Y, per)
-    T = 0
-    F = 0
-    for i = 1:length(Y)
-        if(Y[i] == retY[i])
-            T += 1
-        else
-            F += 1
-        end
-    end
-    return (T/(T+F-uncertain)), uncertain, length(unique)
-end
-
-function findRow(data, row)
-    if(data == Any[])
-        return -1
-    else
-        i = 1
-        found = false
-        while i<=length(data) && !found
-            if(equalVec(data[i], row))
-                found = true
-            else
-                i = i+1
-            end
-        end
-        if found
-            return i
-        else
-            return -1
-        end
-    end
-end
-
 function classSeparation(training_set, w_N, θ, counter)
     X = placeDataset(training_set, w_N, θ)
-    y = zeros(size(training_set)[1])
+    y = zeros(size(training_set)[2])
     unique = Any[]
     centroids = Any[]
-    z = Float64[]
+    z = Any[]
+    z1 = Int64[]
     for i in 1:size(X)[1]
         j = findRow(unique, X[i, :])
         if(j==-1)
             push!(unique, X[i, :])
-            push!(centroids, training_set[i, :])
+            push!(centroids, training_set[:, i])
             zval = zeros(counter)
             zval[1] = i
             push!(z, zval)
+            push!(z1, 1)
         else
-            centroids[j, :] = ((length(centroids[j, :])-1)*centroids[j, :] + training_set[i, :])/(length(centroids[j, :]))
-            c = count(k->(k==0), z[j]) < counter
-            if(c < counter)
-                z[j][counter-c +1] = i
+            centroids[j] = ((length(centroids[j])-1)*centroids[j] + training_set[:, i])/(length(centroids[j]))
+            if(z1[j] < counter)
+                z1[j] = z1[j] + 1
+                z[j][z1[j]] = i
             end
         end
     end
     return X, unique, centroids, z
 end
 
-function compAcc(training_set, w_N, θ, Y, counter, per)
+function compAccC(training_set, w_N, θ, Y, counter, per)
     X, unique, centroids, z = classSeparation(training_set, w_N, θ, counter)
     T = 0
     F = 0
     y = Any[]
     uncertain = 0
     for i in 1:size(X)[1]
-        j = findRow(unique, results[i, :])
-        d1 = norm(training_set[i, :] - centroids[j, :])
-        d2 = min([transpose(w_N[:, k])*X[:, i] - θ[k] for k in 1:length(θ)])
-        if(d1<(1-per)*d2)
-            yval = [Y[k] for k in z[j]]
-            push!(y, mode(yval))
-            if(mode(yval)==Y[i])
-                T += 1
-            else
-                F += 1
+        j = findRow(unique, X[i, :])
+        d1 = norm(training_set[:, i] - centroids[j])
+        d2 = minimum([abs(transpose(w_N[:, k])*training_set[:, i] - θ[k]) for k in 1:length(θ)])
+        if(d2<per*d1)
+        #if(true)
+            if(count(k1 -> (k1==0), z[j])==0)
+                yval = [Y[convert(Int64, k)] for k in z[j]]
+                push!(y, mode(yval))
+                if(mode(yval)==Y[i])
+                    T += 1
+                else
+                    F += 1
+                end
             end
         else
             uncertain += 1
@@ -252,11 +179,11 @@ function compAcc(training_set, w_N, θ, Y, counter, per)
         end
     end
     return T/(T+F), uncertain
-
+end
 
 
 
 x = [1 -1 1; -1 1 -1; 1 -1 1; -1 1 -1; 1 1 1; -1 1 -1 ; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1]
 y = [1; 2; 1; 2; 3; 1; 2; 2; 2; 2; 3; 1; 2; 3; 1]
-retY, uncertain = label(x, y, 1)
-acc = compAcc(x, y, 0, 0,0,0, 5)
+#retY, uncertain = label(x, y, 1)
+#acc = compAcc(x, y, 0, 0,0,0, 5)
