@@ -27,7 +27,7 @@ hyp_nmr = 2
 μᵉmode = 0.0
 μᵉpar = 6.4
 
-#Parameters to evaluate
+#=Parameters to evaluate
 αval = [0.0005, 0.0001, 0.001, 0.0015, 0.0025, 0.005, 0.01]
 ϵval = [0.00005, 0.0001, 0.0005, 0.001, 0.005, 0.0025, 0.001]
 ϕval = [0.5, 1.0, 2.0, 5.0, 10.0]
@@ -74,7 +74,7 @@ for α in αval
         end
     end
 end
-
+=#
 
 epoch_nr = 100
 nmr_training_batches = 1

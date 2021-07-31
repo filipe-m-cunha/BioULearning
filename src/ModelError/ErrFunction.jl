@@ -136,13 +136,13 @@ function label(X, Y, counter)
         if(j == -1)
             push!(unique, results[i, :])
             push!(z, 1)
-            yval = zeros(counter)
+            yval = zeros(counter+1)
             yval[1] = Y[i]
             push!(y, yval)
         else
             if(z[j] < counter)
                 z[j] = z[j] + 1
-                y[i][z[j]] = Y[i]
+                y[j][convert(Int64, z[j])] = Y[i]
             end
         end
     end
@@ -167,8 +167,8 @@ function label(X, Y, counter)
 end
 
 function compAcc(training_set, Y, Xtest, Ytest, w_N, θ, per)
-    X = placeDataset(training_set, w_N, θ)
-    #X = training_set
+    #X = placeDataset(training_set, w_N, θ)
+    X = training_set
     retY, uncertain, unique = label(X, Y, per)
     T = 0
     F = 0
@@ -203,66 +203,60 @@ function findRow(data, row)
     end
 end
 
-
-function labelUncer(X, wX, c1, c2, θ, Y, counter, percentage)
-    results = placeDataset(X, wX, θ)
-    y = Any[]
-    z = Float64[]
+function classSeparation(training_set, w_N, θ, counter)
+    X = placeDataset(training_set, w_N, θ)
+    y = zeros(size(training_set)[1])
     unique = Any[]
-    for i in 1:size(results)[1]
-        j = findRow(unique, results[i, :])
-        if(j == -1)
-            push!(unique, results[i, :])
-            wx = transpose(w_N[:, i])*X[:, i]
-            d = min(norm(X[:, i] - c1[:, i]), norm(X[:, i] - c2[:, i]))
-            if(wx - θ[i] > percentage*d)
-                push!(z, 1)
-                yval = zeros(counter)
-                yval[1] = Y[i]
-                push!(y, yval)
-            else
-                push!(z, 0)
-                yval = zeros(counter)
-                push!(y, yval)
-            end
+    centroids = Any[]
+    z = Float64[]
+    for i in 1:size(X)[1]
+        j = findRow(unique, X[i, :])
+        if(j==-1)
+            push!(unique, X[i, :])
+            push!(centroids, training_set[i, :])
+            zval = zeros(counter)
+            zval[1] = i
+            push!(z, zval)
         else
-            wx = transpose(w_N[:, i])*X[:, i]
-            d = min(norm(X[:, i] - c1[:, i]), norm(X[:, i] - c2[:, i]))
-            if(wx - θ[i] > percentage*d)
-                if(z[j] < counter)
-                    z[j] = z[j] + 1
-                    y[i][z[j]] = Y[i]
-                end
+            centroids[j, :] = ((length(centroids[j, :])-1)*centroids[j, :] + training_set[i, :])/(length(centroids[j, :]))
+            c = count(k->(k==0), z[j]) < counter
+            if(c < counter)
+                z[j][counter-c +1] = i
             end
         end
     end
-    retY = zeros(size(results)[1])
-    uncertain = 0
-    for k in 1:size(results)[1]
-        k1 = findRow(unique, results[k, :])
-        if( k1 == -1)
-            println("Error: Something wrong")
-            break
-        else
-            k2 = convert(Int64, z[k1])
-            if(k2 >= counter)
-                wx = transpose(w_N[:, k])*X[:, k]
-                d = min(norm(X[:, k] - c1[:, k]), norm(X[:, k] - c2[:, k]))
-                if(wx - θ[k] > percentage*d)
-                    retY[k] = convert(Int64, mode(y[k1]))
-                else
-                    retY[k] = -1
-                end
-            else
-                retY[k] = -1
-                uncertain = uncertain + 1
-            end
-        end
-    end
-    return retY, uncertain, unique
+    return X, unique, centroids, z
 end
 
-#x = [1 -1 1; -1 1 -1; 1 -1 1; -1 1 -1; 1 1 1; -1 1 -1]
-#y = [1; 2; 1; 2; 3; 1]
-#retY, uncertain = label(x, y, 1)
-#acc = compAcc(x, y, 0, 0,0,0, 2)
+function compAcc(training_set, w_N, θ, Y, counter, per)
+    X, unique, centroids, z = classSeparation(training_set, w_N, θ, counter)
+    T = 0
+    F = 0
+    y = Any[]
+    uncertain = 0
+    for i in 1:size(X)[1]
+        j = findRow(unique, results[i, :])
+        d1 = norm(training_set[i, :] - centroids[j, :])
+        d2 = min([transpose(w_N[:, k])*X[:, i] - θ[k] for k in 1:length(θ)])
+        if(d1<(1-per)*d2)
+            yval = [Y[k] for k in z[j]]
+            push!(y, mode(yval))
+            if(mode(yval)==Y[i])
+                T += 1
+            else
+                F += 1
+            end
+        else
+            uncertain += 1
+            push!(y, -1)
+        end
+    end
+    return T/(T+F), uncertain
+
+
+
+
+x = [1 -1 1; -1 1 -1; 1 -1 1; -1 1 -1; 1 1 1; -1 1 -1 ; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1]
+y = [1; 2; 1; 2; 3; 1; 2; 2; 2; 2; 3; 1; 2; 3; 1]
+retY, uncertain = label(x, y, 1)
+acc = compAcc(x, y, 0, 0,0,0, 5)
