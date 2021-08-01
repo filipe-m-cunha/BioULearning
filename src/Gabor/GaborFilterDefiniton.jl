@@ -24,10 +24,11 @@ function randgabor(n, λrange, ψupperbound, σrange, γrange, amplitude)
     w .* amplitude / sum(abs.(w))
 end
 
-function establishConnectionGabor(dataset, nGabor, n, λrange, ψupperbound, σrange, γrange, amplitude, connectionMode, stride::Int64=2)
+function establishConnectionGabor(dataset, nGabor, n, λrange, ψupperbound, σrange, γrange, amplitude, connectionMode, stride::Int64=1)
     #Inicialize empty Gabor filter bank
     gaborBank = zeros(nGabor + 1, n, n)
-    finalDim = calcFinalSize(size(dataset)[2], stride, n, "zeros")
+    #finalDim = calcFinalSize(size(dataset)[2], stride, n, "zeros")
+    finalDim = size(dataset)[2] - n + 1
     featVectors = zeros(size(dataset)[3], finalDim, finalDim)
     #Create new filters and push to bank
     for i in 1:nGabor
