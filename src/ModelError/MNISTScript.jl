@@ -11,13 +11,14 @@ test_x,  test_y  = MNIST.testdata()
 X_prime = cat(train_x, test_x; dims = 3)
 Y_train= vcat(train_y, test_y)[1:400]
 Y_test = vcat(train_y, test_y)[401:500]
-Xtemp = establishConnectionGabor(X_prime[:, :, 1:500], 10, 4, [4.6, 10.3], 4.8, [3.8, 5.] , 7. , 2.1, "winnerTakesAll")
+Xtemp = establishConnectionGabor(X_prime[:, :, 1:500], 20, 4, [4.6, 10.3], 4.8, [3.8, 5.] , 7. , 2.1, "winnerTakesAll")
 
 X_t = zeros(196, 500)
 for i in 1:500
     X_t[:, i] = reshape(Xtemp[i, :, :], 196, 1)
 end
 
+#=
 X = X_t[:, 1:400]
 X_test = X_t[:, 401:500]
 
@@ -50,3 +51,5 @@ vary = 0
     acc = get_model_acc(X_test, Y_test, w_N, θ)
     @printf "Model Accuracy: %.2f%%\n" acc * 100
 end
+
+=#
