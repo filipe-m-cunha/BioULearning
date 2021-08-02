@@ -100,14 +100,13 @@ function MultiEpoch(training_set, Y, Xtest, Ytest, nmr_training_batches::Int64, 
             ϕ = ϕ*(ϕvar^(i-1))
 
         end
-        #=
-        println(length(training_set))
-        acc, unlabeled, count = compAcc(training_set, Y, Xtest, Ytest, w_N, θ, 1)
+
+        acc, uncertain = compAccC(Xtest, w_N, θ, Ytest, 8, 2)
+        acc1, uncertain1 = compAccC(Xtest, w_N, θ, Ytest, 8, 1000)
         @printf "Epoch: %.2f%%\n" i
         @printf "Model Accuracy: %.2f%%\n" acc * 100
-        @printf "Unlabeled: %.2f%%\n" unlabeled
-        @printf "Num Classes: %.2f%%\n" count
-        =#
+        @printf "Model Accuracy No Distance: %.2f%%\n" acc1*100
+        @printf "Unlabeled: %.2f%%\n" uncertain
         for j in 1:size_training_batch
             ss = ss + 1
 
