@@ -7,36 +7,42 @@ include("../Model/MultiEpoch.jl")
 include("ErrFunction.jl")
 include("../Gabor/GaborFilterDefiniton.jl")
 
-Random.seed!(413)
+Random.seed!(200)
 
+#=
 train_x, train_y = MNIST.traindata()
 test_x,  test_y  = MNIST.testdata()
 X_prime = cat(train_x, test_x; dims = 3)
-Y_train= vcat(train_y, test_y)[1:400]
-Y_test = vcat(train_y, test_y)[401:500]
-Xtemp, gaborBank = establishConnectionGabor(X_prime[:, :, 1:500], 20, 4, [4.6, 10.3], 4.8, [3.8, 5.] , 7. , 2.1, "winnerTakesAll")
+Y_train= vcat(train_y, test_y)[1:4000]
+Y_test = vcat(train_y, test_y)[4001:5000]
+Xtemp, gaborBank = establishConnectionGabor(X_prime[:, :, 1:5000], 20, 4, [4.6, 10.3], 4.8, [3.8, 5.] , 7. , 2.1, "winnerTakesAll")
 
-#=y
-X_t = zeros(196, 500)
-for i in 1:500
-    X_t[:, i] = reshape(Xtemp[i, :, :], 196, 1)
+
+X_t = zeros(625, 5000)
+for i in 1:5000
+    X_t[:, i] = reshape(Xtemp[i, :, :], 625, 1)
 end
+
+
+=#
 
 
 X = X_t[:, 1:400]
 X_test = X_t[:, 401:500]
 
+
+
 #Fixed Parameters
-epoch_nr = 3;
+epoch_nr = 50;
 nmr_training_batches = 1
 train_batch_size = 400
-d = 196
-hyp_nmr = 2
+d = 625
+hyp_nmr = 4
 μᵉmode = 2.0
 μᵉpar = 0.5
 Ω = 4.0
-ϵ = 0.005
-α = 0.001
+ϵ = 0.0005
+α = 0.00001
 σ = 0.8
 ϕ = 2.0
 E_start = 200
@@ -56,4 +62,3 @@ vary = 0
     @printf "Model Accuracy: %.2f%%\n" acc * 100
 end
 
-=#

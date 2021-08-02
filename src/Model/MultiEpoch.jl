@@ -101,7 +101,7 @@ function MultiEpoch(training_set, Y, Xtest, Ytest, nmr_training_batches::Int64, 
 
         end
 
-        acc, uncertain = compAccC(Xtest, w_N, θ, Ytest, 8, 2)
+        acc, uncertain = compAccC(Xtest, w_N, θ, Ytest, 8, 0.5)
         acc1, uncertain1 = compAccC(Xtest, w_N, θ, Ytest, 8, 1000)
         @printf "Epoch: %.2f%%\n" i
         @printf "Model Accuracy: %.2f%%\n" acc * 100
