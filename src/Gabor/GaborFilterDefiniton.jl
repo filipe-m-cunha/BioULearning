@@ -28,7 +28,7 @@ function establishConnectionGabor(dataset, nGabor, n, λrange, ψupperbound, σr
     #Inicialize empty Gabor filter bank
     gaborBank = zeros(nGabor + 1, n, n)
     #finalDim = calcFinalSize(size(dataset)[2], stride, n, "zeros")
-    finalDim = size(dataset)[2] - n + 1
+    finalDim = convert(Int64, (size(dataset)[2] + 2*padding - n)/stride)+1
     featVectors = zeros(size(dataset)[3], finalDim, finalDim)
     #Create new filters and push to bank
     for i in 1:nGabor
@@ -43,12 +43,11 @@ function establishConnectionGabor(dataset, nGabor, n, λrange, ψupperbound, σr
         end
         #Perform convolution operation
         if (connectionMode == "winnerTakesAll")
-            newImage= conv_forward(dataset[:, :, j], gaborBank)
+            newImage= conv_forward(dataset[:, :, j], gaborBank, stride, padding)
             featVectors[j, :, :] = newImage
-        #=
+            #=
         elseif (connectionMode == "avgDown")
             featVectors[j, :, :] = avgConv(dataset[:, :, j], gaborBank)
-        end
         =#
         end
     end

@@ -4,7 +4,7 @@ using Infinity
 
 
 #Perfoms winnerTakesAll convolution, given a gabor filter bank and an image
-function conv_forward(img, gaborBank, stride=1, padding=0)
+function conv_forward(img, gaborBank, stride::Int64=1, padding::Int64=0)
     img_H, img_W = size(img)
     sizeBank ,filter_H, filter_W = size(gaborBank)
     
@@ -13,14 +13,14 @@ function conv_forward(img, gaborBank, stride=1, padding=0)
     
     z = zeros(n_H, n_W)
     padded_img = PaddedView(0, img, (1:img_H+2*padding,1:img_W + 2*padding), (1+padding:img_H+padding, 1 + padding : img_W + padding))
-    
-    for h in 1:n_H
-        for w in 1:n_W
-            vert_start = h*stride
-            vert_end = h*stride + filter_H
-            horiz_start = w*stride
-            horiz_end = w*stride + filter_W
-            
+    for h in 0:n_H-1
+        for w in 0:n_W-1
+            vert_start = h*stride+1
+            vert_end = h*stride + filter_H+1
+            horiz_start = w*stride+1
+            horiz_end = w*stride +filter_W + 1
+            #println(vert_end)
+            #println(horiz_end)
             img_slice = padded_img[vert_start:vert_end-1, horiz_start:horiz_end-1]
             
             measures = [0, -∞]
@@ -32,11 +32,10 @@ function conv_forward(img, gaborBank, stride=1, padding=0)
                 end
             end
             
-            z[h, w] = measures[1]
+            z[h+1, w+1] = measures[1]
             
         end
     end
-    
     return z
     
 end

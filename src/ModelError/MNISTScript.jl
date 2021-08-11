@@ -15,7 +15,7 @@ test_x,  test_y  = MNIST.testdata()
 X_prime = cat(train_x, test_x; dims = 3)
 Y_train= vcat(train_y, test_y)[1:6000]
 Y_test = vcat(train_y, test_y)[6001:7000]
-Xtemp, gaborBank = establishConnectionGabor(X_prime[:, :, 1:7000], 20, 5, [4.6, 10.3], 4.8, [3.8, 5.] , 7. , 2.1, "winnerTakesAll", 2, 2)
+Xtemp, gaborBank = establishConnectionGabor(X_prime[:, :, 1:7000], 20, 4, [4.6, 10.3], 4.8, [3.8, 5.] , 7. , 2.1, "winnerTakesAll", 2, 2)
 
 
 X_t = zeros(225, 7000)

@@ -39,54 +39,6 @@ function placeDataset(X, wX, θ)
     return fPlace
 end
 
-#Given a dataset X, a label set Y, a Matrix
-#wX and a vector θ, these last two describing
-#hyperplanes, the function will compute the
-#accuracy of the model by comparing the
-#labels of each point in the dataset with
-#their respective relative hyperplane positions
-
-function get_model_acc(X, Y, wX, θ)
-
-    results = placeDataset(X, wX, θ)
-    true_positive = 0
-    false_positive = 0
-    true_negative = 0
-    false_negative = 0
-
-    for i in 1:size(X)[2]
-
-        for j in i:size(X)[2]
-
-            if results[i, :] == results[j, :]
-
-                if Y[i] == Y[j]
-
-                    true_positive += 1
-
-                else
-                    false_positive += 1
-
-                end
-            else
-
-                if Y[i] == Y[j]
-
-                    false_negative += 1
-
-                else
-                    true_negative += 1
-
-                end
-            end
-        end
-    end
-
-    accuracy = (true_positive + true_negative)/(true_negative + true_positive + false_negative + false_positive)
-
-    return accuracy
-end
-
 function equalVec(vec1, vec2)
     if length(vec1) != length(vec2)
         return false
@@ -183,7 +135,58 @@ end
 
 
 
-x = [1 -1 1; -1 1 -1; 1 -1 1; -1 1 -1; 1 1 1; -1 1 -1 ; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1]
-y = [1; 2; 1; 2; 3; 1; 2; 2; 2; 2; 3; 1; 2; 3; 1]
+#x = [1 -1 1; -1 1 -1; 1 -1 1; -1 1 -1; 1 1 1; -1 1 -1 ; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1; -1 1 -1]
+#y = [1; 2; 1; 2; 3; 1; 2; 2; 2; 2; 3; 1; 2; 3; 1]
 #retY, uncertain = label(x, y, 1)
 #acc = compAcc(x, y, 0, 0,0,0, 5)
+
+
+#=Given a dataset X, a label set Y, a Matrix
+#wX and a vector θ, these last two describing
+#hyperplanes, the function will compute the
+#accuracy of the model by comparing the
+#labels of each point in the dataset with
+#their respective relative hyperplane positions
+
+function get_model_acc(X, Y, wX, θ)
+
+    results = placeDataset(X, wX, θ)
+    true_positive = 0
+    false_positive = 0
+    true_negative = 0
+    false_negative = 0
+
+    for i in 1:size(X)[2]
+
+        for j in i:size(X)[2]
+
+            if results[i, :] == results[j, :]
+
+                if Y[i] == Y[j]
+
+                    true_positive += 1
+
+                else
+                    false_positive += 1
+
+                end
+            else
+
+                if Y[i] == Y[j]
+
+                    false_negative += 1
+
+                else
+                    true_negative += 1
+
+                end
+            end
+        end
+    end
+
+    accuracy = (true_positive + true_negative)/(true_negative + true_positive + false_negative + false_positive)
+
+    return accuracy
+end
+
+=#
