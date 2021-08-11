@@ -9,34 +9,34 @@ include("../Gabor/GaborFilterDefiniton.jl")
 
 Random.seed!(200)
 
-#=
+
 train_x, train_y = MNIST.traindata()
 test_x,  test_y  = MNIST.testdata()
 X_prime = cat(train_x, test_x; dims = 3)
-Y_train= vcat(train_y, test_y)[1:4000]
-Y_test = vcat(train_y, test_y)[4001:5000]
-Xtemp, gaborBank = establishConnectionGabor(X_prime[:, :, 1:5000], 20, 4, [4.6, 10.3], 4.8, [3.8, 5.] , 7. , 2.1, "winnerTakesAll")
+Y_train= vcat(train_y, test_y)[1:6000]
+Y_test = vcat(train_y, test_y)[6001:7000]
+Xtemp, gaborBank = establishConnectionGabor(X_prime[:, :, 1:7000], 20, 5, [4.6, 10.3], 4.8, [3.8, 5.] , 7. , 2.1, "winnerTakesAll", 2, 2)
 
 
-X_t = zeros(625, 5000)
-for i in 1:5000
-    X_t[:, i] = reshape(Xtemp[i, :, :], 625, 1)
+X_t = zeros(225, 7000)
+for i in 1:7000
+    X_t[:, i] = reshape(Xtemp[i, :, :], 225, 1)
 end
 
 
-=#
 
 
-X = X_t[:, 1:400]
-X_test = X_t[:, 401:500]
+
+X = X_t[:, 1:6000]
+X_test = X_t[:, 6001:7000]
 
 
 
 #Fixed Parameters
 epoch_nr = 50;
 nmr_training_batches = 1
-train_batch_size = 400
-d = 625
+train_batch_size = 6000
+d = 225
 hyp_nmr = 4
 μᵉmode = 2.0
 μᵉpar = 0.5

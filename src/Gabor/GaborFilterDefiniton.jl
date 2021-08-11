@@ -24,7 +24,7 @@ function randgabor(n, λrange, ψupperbound, σrange, γrange, amplitude)
     w .* amplitude / sum(abs.(w))
 end
 
-function establishConnectionGabor(dataset, nGabor, n, λrange, ψupperbound, σrange, γrange, amplitude, connectionMode, stride::Int64=1)
+function establishConnectionGabor(dataset, nGabor, n, λrange, ψupperbound, σrange, γrange, amplitude, connectionMode, stride::Int64=1, padding::Int64=0)
     #Inicialize empty Gabor filter bank
     gaborBank = zeros(nGabor + 1, n, n)
     #finalDim = calcFinalSize(size(dataset)[2], stride, n, "zeros")
@@ -43,10 +43,13 @@ function establishConnectionGabor(dataset, nGabor, n, λrange, ψupperbound, σr
         end
         #Perform convolution operation
         if (connectionMode == "winnerTakesAll")
-            newImage= winnerConv(dataset[:, :, j], gaborBank)
+            newImage= conv_forward(dataset[:, :, j], gaborBank)
             featVectors[j, :, :] = newImage
+        #=
         elseif (connectionMode == "avgDown")
             featVectors[j, :, :] = avgConv(dataset[:, :, j], gaborBank)
+        end
+        =#
         end
     end
     println("Ended Convolutions")
