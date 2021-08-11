@@ -61,4 +61,3 @@ vary = 0
     acc = get_model_acc(X_test, Y_test, w_N, θ)
     @printf "Model Accuracy: %.2f%%\n" acc * 100
 end
-

@@ -41,22 +41,22 @@ function conv_forward(img, gaborBank, stride=1, padding=0)
     
 end
 
-function deconvolutionWinnerTAll(featVec, gaborBank)
+function deconvolutionWinnerTAll(featVec, gaborBank, stride::Int64=1, padding::Int64=0)
     x = size(gaborBank[1, :, :])[1]
-    y = size(Xtemp[1, :, :])[1]
-    imgSize = x + y - 1
-    img = zeros(imgSize, imgSize)
-    for i in 1:imgSize
-        for j in 1:imgSize
-            for k1 in max(1, i+x-imgSize):min(x, i)
-                for k2 in max(1, j+x-imgSize):min(x, j)
-                    img[i, j] += (1/(min(x, j) - max(1, j+x-imgSize)+1))*(1/(min(x, i-x, i) - max(1, i+x-imgSize)+1))*gaborBank[convert(Int64, featVec[i-k1+1, j-k2+1]), :, :][k1, k2]
-                end
-            end
+    y = size(featVec)[1]
+    imgSize = y*stride - 2*padding + x - 1
+    img = zeros(imgSize+2*padding, imgSize+2*padding)
+    for w in 0:size(featVec)[1]-1
+        for h in 0:size(featVec)[2]-1
+            vert_start = h*stride+1
+            vert_end = h*stride + x+1
+            horiz_start = w*stride+1
+            horiz_end = w*stride +x + 1
+            img[vert_start:vert_end-1, horiz_start:horiz_end-1] += gaborBank[convert(Int64,featVec[h+1, w+1]), :, :]
         end
     end
     return img
-end  
+end 
 
 
 #=Perfoms AverageConv convolution, given a gabor filter bank and an image
