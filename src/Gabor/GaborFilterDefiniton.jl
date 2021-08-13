@@ -56,3 +56,32 @@ function establishConnectionGabor(dataset, nGabor, n, λrange, ψupperbound, σr
 end
 
 
+function establishConnectionGaborAlt(dataset, nGabor, n, λrange, ψupperbound, σrange, γrange, amplitude, connectionMode, stride::Int64=1, padding::Int64=0)
+    #Inicialize empty Gabor filter bank
+    gaborBank = zeros(nGabor + 1, n, n)
+    #finalDim = calcFinalSize(size(dataset)[2], stride, n, "zeros")
+    finalDim = convert(Int64, (size(dataset)[2] + 2*padding - n)/stride)+1
+    featVectors = zeros(size(dataset)[3], finalDim, finalDim)
+    #Create new filters and push to bank
+    for i in 1:nGabor
+        gaborBank[i, :, :] = randgabor(n, λrange, ψupperbound, σrange, γrange, amplitude)
+    end
+    gaborBank[nGabor + 1, :, :] =  dataset[1].*ones(n, n)
+    println("Starting Convolutions")
+    for j in 1:size(dataset)[3]
+        if (j%100==0)
+            acc = j/size(dataset)[3]
+            @printf "Now %.2f%%\n" acc * 100
+        end
+        #Perform convolution operation
+        if (connectionMode == "winnerTakesAll")
+            newImage= conv_forwardAlt(dataset[:, :, j], gaborBank, stride, padding)
+            featVectors[j, :, :] = newImage
+        elseif (connectionMode == "avgDown")
+            featVectors[j, :, :] = avgConv(dataset[:, :, j], gaborBank)
+        end
+    end
+    println("Ended Convolutions")
+    return featVectors, gaborBank
+end
+

@@ -112,6 +112,7 @@ function compAccC(training_set, w_N, θ, Y, counter, per)
     uncertain = 0
     for i in 1:size(X)[1]
         j = findRow(unique, X[i, :])
+        if(j!=-1)
         d1 = norm(training_set[:, i] - centroids[j])
         d2 = minimum([abs(transpose(w_N[:, k])*training_set[:, i] - θ[k]) for k in 1:length(θ)])
         if(d2<per*d1)
@@ -129,6 +130,10 @@ function compAccC(training_set, w_N, θ, Y, counter, per)
             uncertain += 1
             push!(y, -1)
         end
+    else
+        uncertain += 1
+        push!(y, -1)
+    end
     end
     return T/(T+F), uncertain
 end

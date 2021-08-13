@@ -3,6 +3,17 @@ using Images
 using Infinity
 
 
+function elementWiseMult(w1, w2)
+    sum = 0
+    for i in size(w1)[1]
+        for j in size(w2)[2]
+            sum += w1[i, j]*w2[i,j]
+        end
+    end
+    return sum
+end
+    
+
 #Perfoms winnerTakesAll convolution, given a gabor filter bank and an image
 function conv_forward(img, gaborBank, stride::Int64=1, padding::Int64=0)
     img_H, img_W = size(img)
@@ -33,6 +44,42 @@ function conv_forward(img, gaborBank, stride::Int64=1, padding::Int64=0)
             end
             
             z[h+1, w+1] = measures[1]
+            
+        end
+    end
+    return z
+    
+end
+
+function conv_forwardAlt(img, gaborBank, stride::Int64=1, padding::Int64=0)
+    img_H, img_W = size(img)
+    sizeBank ,filter_H, filter_W = size(gaborBank)
+    
+    n_H = convert(Int64, (img_H + 2*padding - filter_H)/stride)+1
+    n_W = convert(Int64, (img_W + 2*padding - filter_W)/stride)+1
+    
+    z = zeros(n_H, n_W)
+    padded_img = PaddedView(0, img, (1:img_H+2*padding,1:img_W + 2*padding), (1+padding:img_H+padding, 1 + padding : img_W + padding))
+    for h in 0:n_H-1
+        for w in 0:n_W-1
+            vert_start = h*stride+1
+            vert_end = h*stride + filter_H+1
+            horiz_start = w*stride+1
+            horiz_end = w*stride +filter_W + 1
+            #println(vert_end)
+            #println(horiz_end)
+            img_slice = padded_img[vert_start:vert_end-1, horiz_start:horiz_end-1]
+            
+            measures = [0, -∞]
+
+            for k in 1:sizeBank
+                val = assess_ssim(img_slice, gaborBank[k, :, :])
+                if val > measures[2]
+                    measures = [k, val]
+                end
+            end
+            
+            z[h+1, w+1] = elementWiseMult(img_slice, gaborBank[convert(Int64, measures[1]), :, :])
             
         end
     end
